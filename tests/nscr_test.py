@@ -1,6 +1,6 @@
 
 import unittest
-from ntr.nscr import NSCR, MapEntry
+from nitrogfx.nscr import NSCR, MapEntry
 
 
 class TestNscr(unittest.TestCase):

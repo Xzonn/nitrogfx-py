@@ -1,6 +1,6 @@
 import unittest
-from ntr.ncgr import NCGR
-from ntr.ncgr import flip_tile
+from nitrogfx.ncgr import NCGR
+from nitrogfx.ncgr import flip_tile
 
 class TestNcgr(unittest.TestCase):
 

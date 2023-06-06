@@ -1,0 +1,29 @@
+[project]
+name = "nitrogfx-py"
+version = "0.1.0"
+keywords = ["NDS", "Nintendo DS", "NCGR", "NCLR", "NSCR"]
+authors = [
+  { name="Fexean", email="3699814-Fexean@users.noreply.gitlab.com" },
+]
+description = "Nintendo DS Graphic format library"
+readme = "README.md"
+requires-python = ">=3.7"
+license = {file = "LICENSE.txt"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+	"Pillow"
+]
+
+[build-system]
+requires = ["setuptools>=64.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["nitrogfx"]
+
+[project.urls]
+"Homepage" = "https://gitlab/Fexean/ntrgfx-py"

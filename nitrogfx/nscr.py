@@ -1,4 +1,4 @@
-import ntr.util as util
+import nitrogfx.util as util
 import struct
 
 class MapEntry:

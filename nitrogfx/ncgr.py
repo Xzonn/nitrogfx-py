@@ -1,6 +1,6 @@
 import struct
-import ntr.util as util
-from ntr.nscr import MapEntry
+import nitrogfx.util as util
+from nitrogfx.nscr import MapEntry
 
 class NCGR:
 	def __init__(self, bpp=4):

@@ -1,10 +1,10 @@
 
 
 import unittest
-import ntr.util as util
+import nitrogfx.util as util
 
 
-class TestNcgr(unittest.TestCase):
+class TestUtil(unittest.TestCase):
 
     def test_color_conv(self):
         a = (40, 16, 248)

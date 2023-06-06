@@ -1,7 +1,7 @@
-from ntr.ncgr import NCGR, flip_tile
-from ntr.nscr import NSCR
-from ntr.nclr import NCLR
-from ntr.nscr import MapEntry
+from nitrogfx.ncgr import NCGR, flip_tile
+from nitrogfx.nscr import NSCR
+from nitrogfx.nclr import NCLR
+from nitrogfx.nscr import MapEntry
 
 from PIL import Image
 

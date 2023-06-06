@@ -1,9 +1,9 @@
 
 import unittest
-from ntr.nclr import NCLR
+from nitrogfx.nclr import NCLR
 
 
-class TestNcgr(unittest.TestCase):
+class TestNclr(unittest.TestCase):
 
     def test_create(self):
         x = NCLR()
