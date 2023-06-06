@@ -1,10 +1,10 @@
 import struct
 import ntr.util as util
+from ntr.nscr import MapEntry
 
 class NCGR:
 	def __init__(self, bpp=4):
 		self.bpp = bpp
-		self.tilesize = 8
 		self.tiles = []
     
     
@@ -45,6 +45,14 @@ class NCGR:
 				self.tiles.append(self.__unpack_tile(data[0x2C:], i))
 
 
+	def find_tile(self, tile):
+		#todo flipping
+		for (idx,t) in enumerate(self.tiles):
+			if t == tile:
+				return MapEntry(idx, 0, False, False)
+		return None
+
+
 	def write(filepath : str):
 		with open(filepath, "wb") as f:
 			f.write(self.pack())
@@ -54,3 +62,16 @@ class NCGR:
 
 	def __repr__(self):
 		return f"<{self.bpp}bpp ncgr with {len(self.tiles)} tiles>"
+
+
+
+def flip_tile(tile, xflip, yflip):
+	if not xflip and not yflip:
+		return tile
+	t = []
+	for y in range(8):
+		for x in range(8):
+			y2 = 7-y if yflip else y
+			x2 = 7-x if xflip else x
+			t.append(tile[8*y2+x2])
+	return t

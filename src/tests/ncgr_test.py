@@ -1,6 +1,6 @@
 import unittest
 from ntr.ncgr import NCGR
-
+from ntr.ncgr import flip_tile
 
 class TestNcgr(unittest.TestCase):
 
@@ -30,3 +30,15 @@ class TestNcgr(unittest.TestCase):
         y = NCGR()
         y.unpack(x.pack())
         self.assertEqual(x, y)
+
+    def test_tileflip(self):
+        test_tile = [i&0xf for i in range(64)]
+        xflip = flip_tile(test_tile, True, False)
+        yflip = flip_tile(test_tile, False, True)
+        xyflip = flip_tile(test_tile, True, True)
+
+        self.assertEqual(flip_tile(test_tile, False, False), test_tile)
+        self.assertEqual(flip_tile(xflip, True, False), test_tile)
+        self.assertEqual(flip_tile(yflip, False, True), test_tile)
+        self.assertEqual(flip_tile(xyflip, True, True), test_tile)
+
