@@ -5,6 +5,7 @@ import nitrogfx.convert as conv
 
 JSON_EXAMPLE = "test_data/ncer.json"
 PACKED_JSON = "test_data/ncer.NCER"
+MULTI_OAM_NCER = "test_data/multi_oam.NCER"
 
 class NCERTest(unittest.TestCase):
 
@@ -21,13 +22,13 @@ class NCERTest(unittest.TestCase):
         self.assertEqual(x.cells[1].min_x, 65520)
         self.assertEqual(x.cells[1].min_y, 65520)
         
-        self.assertEqual(x.cells[1].oam.x, 496)
-        self.assertEqual(x.cells[1].oam.y, 240)
-        self.assertEqual(x.cells[1].oam.rotsca, 0)
-        self.assertEqual(x.cells[1].oam.rot, False)
-        self.assertEqual(x.cells[1].oam.mosaic, False)
-        self.assertEqual(x.cells[1].oam.char, 16)
-        self.assertEqual(x.cells[1].oam.size, 2)
+        self.assertEqual(x.cells[1].oam[0].x, 496)
+        self.assertEqual(x.cells[1].oam[0].y, 240)
+        self.assertEqual(x.cells[1].oam[0].rotsca, 0)
+        self.assertEqual(x.cells[1].oam[0].rot, False)
+        self.assertEqual(x.cells[1].oam[0].mosaic, False)
+        self.assertEqual(x.cells[1].oam[0].char, 16)
+        self.assertEqual(x.cells[1].oam[0].size, 2)
 
     def test_json_encode_matches_decode(self):
         x = conv.json_to_ncer(JSON_EXAMPLE)
@@ -59,12 +60,18 @@ class NCERTest(unittest.TestCase):
 
     def test_pack_matches_example(self):
         x = conv.json_to_ncer(JSON_EXAMPLE)
-        with open("teest.ncer", "wb") as f2:
-            f2.write(x.pack())
-
         with open(PACKED_JSON, "rb") as f:
             y = f.read()
         self.assertEqual(x.pack(), y)
+
+    def test_unpack_multi_oam(self):
+        x = ncer.NCER.load_from(MULTI_OAM_NCER)
+        self.assertEqual(len(x.cells[0].oam), 2)
+
+    def test_pack_multi_oam_matches(self):
+        x = ncer.NCER.load_from(MULTI_OAM_NCER)
+        with open(MULTI_OAM_NCER, "rb") as f:
+            self.assertEqual(x.pack(), f.read())
 
     def test_oam_size_set_get(self):
         oam = ncer.OAM()

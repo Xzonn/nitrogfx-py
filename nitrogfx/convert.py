@@ -100,21 +100,54 @@ def json_to_ncer(filename):
         c.max_y = cell["maxY"]
         c.min_x = cell["minX"]
         c.min_y = cell["minY"]
-        c.oam.y = cell["OAM"]["Attr0"]["YCoordinate"]
-        c.oam.rot = cell["OAM"]["Attr0"]["Rotation"]
-        c.oam.sizeDisable = cell["OAM"]["Attr0"]["SizeDisable"]
-        c.oam.mode = cell["OAM"]["Attr0"]["Mode"]
-        c.oam.mosaic = cell["OAM"]["Attr0"]["Mosaic"]
-        c.oam.colors = cell["OAM"]["Attr0"]["Colours"]
-        c.oam.shape = cell["OAM"]["Attr0"]["Shape"]
-        c.oam.x = cell["OAM"]["Attr1"]["XCoordinate"]
-        c.oam.rotsca = cell["OAM"]["Attr1"]["RotationScaling"]
-        c.oam.size = cell["OAM"]["Attr1"]["Size"]
-        c.oam.char = cell["OAM"]["Attr2"]["CharName"]
-        c.oam.prio = cell["OAM"]["Attr2"]["Priority"]
-        c.oam.pal = cell["OAM"]["Attr2"]["Palette"]
+        if isinstance(cell["OAM"], list):
+            c.oam = [__json_to_oam(x) for x in cell["OAM"]]
+        else:
+            c.oam.append(__json_to_oam(cell["OAM"]))
         ncer.cells.append(c)
     return ncer
+
+
+def __json_to_oam(cell : dict):
+    "Helper function for reading OAM from json data"
+    oam = OAM()    
+    oam.y = cell["Attr0"]["YCoordinate"]
+    oam.rot = cell["Attr0"]["Rotation"]
+    oam.sizeDisable = cell["Attr0"]["SizeDisable"]
+    oam.mode = cell["Attr0"]["Mode"]
+    oam.mosaic = cell["Attr0"]["Mosaic"]
+    oam.colors = cell["Attr0"]["Colours"]
+    oam.shape = cell["Attr0"]["Shape"]
+    oam.x = cell["Attr1"]["XCoordinate"]
+    oam.rotsca = cell["Attr1"]["RotationScaling"]
+    oam.size = cell["Attr1"]["Size"]
+    oam.char = cell["Attr2"]["CharName"]
+    oam.prio = cell["Attr2"]["Priority"]
+    oam.pal = cell["Attr2"]["Palette"]
+    return oam
+
+def __oam_to_json(oam):
+    "Helper function for converting oam to json data"
+    attr0 = {
+                "YCoordinate" : oam.y,
+                "Rotation" : oam.rot,
+                "SizeDisable" : oam.sizeDisable,
+                "Mode" : oam.mode,
+                "Mosaic" : oam.mosaic,
+                "Colours" : oam.colors,
+                "Shape" : oam.shape
+            }
+    attr1 = {
+                "XCoordinate" : oam.x,
+                "RotationScaling" : oam.rotsca,
+                "Size" : oam.size,
+            }
+    attr2 = {
+                "CharName": oam.char,
+                "Priority": oam.prio,
+                "Palette": oam.pal
+            }
+    return {"Attr0" : attr0, "Attr1" : attr1, "Attr2": attr2}
 
 def ncer_to_json(ncer, json_filename):
     "Store NCER in a JSON file. Counterpart to decode_json"
@@ -129,31 +162,11 @@ def ncer_to_json(ncer, json_filename):
     
     cellArray = []
     for cell in ncer.cells:
-        attr0 = {
-                "YCoordinate" : cell.oam.y,
-                "Rotation" : cell.oam.rot,
-                "SizeDisable" : cell.oam.sizeDisable,
-                "Mode" : cell.oam.mode,
-                "Mosaic" : cell.oam.mosaic,
-                "Colours" : cell.oam.colors,
-                "Shape" : cell.oam.shape
-                }
-        attr1 = {
-                "XCoordinate" : cell.oam.x,
-                "RotationScaling" : cell.oam.rotsca,
-                "Size" : cell.oam.size,
-                }
-        attr2 = {
-                "CharName": cell.oam.char,
-                "Priority": cell.oam.prio,
-                "Palette": cell.oam.pal
-                }
-        oam = {"Attr0" : attr0, "Attr1" : attr1, "Attr2": attr2}
         cellArray.append({
             "readOnly" : cell.readOnly,
             "maxX" : cell.max_x, "maxY" : cell.max_y,
             "minX" : cell.min_x, "minY" : cell.min_y,
-            "OAM" : oam
+            "OAM" : __oam_to_json(cell.oam[0]) if len(cell.oam) == 1 else [__oam_to_json(oam) for oam in cell.oam]
         })
     data["cells"] = cellArray
     data["labels"] = [label for label in ncer.labels]

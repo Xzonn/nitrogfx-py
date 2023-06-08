@@ -1,14 +1,5 @@
 import struct
 
-
-def is_eq_object(a, b):
-    if dir(a) != dir(b):
-        return False
-    for attr in dir(a):
-        if getattr(a, attr) != getattr(b, attr):
-            return False
-    return True
-
 def colorToRGB555(c):
 	r = int((c[0] / 8))
 	g = int((c[1] / 8))
