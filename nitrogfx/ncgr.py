@@ -57,11 +57,16 @@ class NCGR():
             return self
 
         def find_tile(self, tile):
-                #todo flipping
-                for (idx,t) in enumerate(self.tiles):
-                        if t == tile:
-                                return MapEntry(idx, 0, False, False)
-                return None
+            for (idx,t) in enumerate(self.tiles):
+                if t == tile:
+                    return MapEntry(idx, 0, False, False)
+                if tile == flip_tile(t, False, True):
+                    return MapEntry(idx, 0, False, True)
+                if tile == flip_tile(t, True, False):
+                    return MapEntry(idx, 0, True, False)
+                if tile == flip_tile(t, True, True):
+                    return MapEntry(idx, 0, True, True)
+            return None
 
 
         def save_as(self, filepath : str):

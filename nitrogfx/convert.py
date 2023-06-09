@@ -19,20 +19,18 @@ def get_img_palette(img):
 
 
 def get_tile_data(img, x, y):
-        "Get all Image pixels in a tile as a list"
-        result = []
-        for i in range(8):
-                for j in range(8):
-                        result.append(img.getpixel((x+j, y+i)))
-        return result
+    "Get all Image pixels in a tile as a list"
+    result = []
+    for i in range(8):
+        for j in range(8):
+            result.append(img.getpixel((x+j, y+i)))
+    return result
 
 def tilemap_from_8bpp_img(img):
         "Get NCLR, NSCR and NCGR from an 256-color indexed image"
         nclr = get_img_palette(img)
         
         ncgr = NCGR()
-        ncgr.width = img.width
-        ncgr.height = img.height
         ncgr.bpp = 8
 
         tiles = ncgr.tiles
@@ -46,7 +44,8 @@ def tilemap_from_8bpp_img(img):
                                 map_entry = MapEntry(len(tiles))
                                 tiles.append(tile)
                         nscr.set_entry(x//8, y//8, map_entry)
-
+        ncgr.width = 1
+        ncgr.height = len(ncgr.tiles)
         return (ncgr, nscr, nclr)
 
 
@@ -70,8 +69,39 @@ def nclr_to_imgpal(nclr):
                 result.append(color[2])
         return result
 
-def draw_8bpp_tilemap(img_name, ncgr, nscr, nclr):
 
+def ncgr_to_img(ncgr, nclr):
+    "Create an Image from NCGR tileset and NCLR palette"
+    w = ncgr.width
+    h = ncgr.height
+    img = Image.new("P", (8*w, 8*h), (0,0,0,0))
+    pixels = img.load()
+    for y in range(h):
+        for x in range(w):
+            print(y*w+x, x, y, w, h)
+            entry = MapEntry(y*w+x)
+            draw_tile(pixels, ncgr, entry, x*8, y*8)
+    img.putpalette(nclr_to_imgpal(nclr))
+    return img
+
+def ncgr_to_png(ncgr, img_name, nclr):
+    ncgr_to_img(ncgr, nclr).save(img_name, "PNG")
+
+
+def img_to_ncgr(img, _8bpp=True):
+    ncgr = NCGR(8 if _8bpp else 4)
+    ncgr.width = img.width // 8
+    ncgr.height = img.height // 8
+    for y in range(0,img.height,8):
+        for x in range(0,img.width,8):
+            ncgr.tiles.append(get_tile_data(img, x, y))
+    return ncgr
+
+def png_to_ncgr(img_name):
+    return img_to_ncgr(Image.open(img_name))
+
+
+def draw_8bpp_tilemap(img_name, ncgr, nscr, nclr):
         img = Image.new("P", (nscr.width, nscr.height), (0,0,0,0))
         pixels = img.load()
         for y in range(nscr.height // 8):

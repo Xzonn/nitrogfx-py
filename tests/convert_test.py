@@ -21,7 +21,7 @@ class ConvertTest(unittest.TestCase):
         def test_tileset_read(self):
                 im = Image.open(TEST_IMG_8BPP)
                 (ncgr, nscr, nclr) = conv.tilemap_from_8bpp_img(im)
-                self.assertEqual(len(ncgr.tiles), 6)
+                self.assertEqual(len(ncgr.tiles), 4)
                 self.assertEqual(ncgr.bpp, 8)
         
         def test_tilemap_read(self):
@@ -50,4 +50,9 @@ class ConvertTest(unittest.TestCase):
             self.assertEqual(ncer, ncer2)
 
 
+        def test_ncgr_png_conversion(self):
+            im = Image.open(TEST_IMG_8BPP)
+            (ncgr, nscr, nclr) = conv.tilemap_from_8bpp_img(im)
+            i2 = conv.ncgr_to_img(ncgr, nclr)
+            self.assertEqual(ncgr, conv.img_to_ncgr(i2))
 
