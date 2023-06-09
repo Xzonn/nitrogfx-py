@@ -64,5 +64,6 @@
 		}
 	],
 	"labels": ["CellAnime0", "CellAnime1"],
-	"labelCount": 2
+	"labelCount": 2,
+	"TEXU": 0
 }

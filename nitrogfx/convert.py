@@ -89,6 +89,7 @@ def json_to_ncer(filename):
     ncer = NCER()
     ncer.extended = data["extended"]
     ncer.mapping_type = data["mappingType"]
+    ncer.texu = data.get("TEXU", 0)
     if data["labelEnabled"]:
         for label_name in data["labels"]:
             ncer.labels.append(label_name)
@@ -157,7 +158,8 @@ def ncer_to_json(ncer, json_filename):
         "imageHeight" : ncer.get_size()[1],
         "imageWidth" : ncer.get_size()[0],
         "cellCount" : len(ncer.cells),
-        "mappingType" : ncer.mapping_type
+        "mappingType" : ncer.mapping_type,
+        "TEXU" : ncer.texu
     }
     
     cellArray = []

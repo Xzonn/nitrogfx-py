@@ -47,7 +47,6 @@ class ConvertTest(unittest.TestCase):
             with tempfile.TemporaryDirectory() as tdir:
                 conv.ncer_to_json(ncer, tdir+"tmp.json")
                 ncer2 = conv.json_to_ncer(tdir+"tmp.json")
-            ncer2.texu = 1 # this is currently not stored in the json
             self.assertEqual(ncer, ncer2)
 
 

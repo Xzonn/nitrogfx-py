@@ -9,6 +9,7 @@ class NCGR():
                 self.width = 0 #in tiles
                 self.height = 0 #in tiles
                 self.ncbr = False
+                self.unk = 0    #last 4 bytes of header
     
     
         def __pack_tile(self, tile):
@@ -25,7 +26,7 @@ class NCGR():
                 bitdepth = 4 if self.bpp == 8 else 3
 
                 header = util.packNitroHeader("RGCN", sect_size + 0x10, 2, 1)
-                header2 = b"RAHC"+ struct.pack("<IHHIIIII", sect_size, self.height, self.width, bitdepth, 0, self.ncbr, tiledat_size, 0x18)
+                header2 = b"RAHC"+ struct.pack("<IHHIIIII", sect_size, self.height, self.width, bitdepth, 0, self.ncbr, tiledat_size, self.unk)
                 
                 tiledata = b''
                 for tile in self.tiles:
@@ -46,7 +47,7 @@ class NCGR():
 
         def unpack(data):
             self = NCGR()
-            sect_size, self.height, self.width, bpp, mapping, mode, tiledatsize = struct.unpack("<IHHIIII", data[0x14:0x14+24])
+            sect_size, self.height, self.width, bpp, mapping, mode, tiledatsize, self.unk = struct.unpack("<IHHIIIII", data[0x14:0x14+28])
             self.bpp = 4 if bpp == 3 else 8
             self.ncbr = mode == 1
             tile_cnt = self.height*self.width
