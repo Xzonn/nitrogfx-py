@@ -2,6 +2,8 @@ import unittest
 from nitrogfx.ncgr import NCGR
 from nitrogfx.ncgr import flip_tile
 
+EXAMPLE_NCGR = "test_data/edu011_LZ.bin/edu011.NCGR"
+
 class TestNcgr(unittest.TestCase):
 
     def test_creation(self):
@@ -10,16 +12,14 @@ class TestNcgr(unittest.TestCase):
 
     def test_pack(self):
         x = NCGR()
-        y = NCGR()
-        y.unpack(x.pack())
+        y = NCGR.unpack(x.pack())
         self.assertEqual(x, y)
     
     def test_pack_tiles8bpp(self):
         x = NCGR(8)
         x.tiles.append([i for i in range(64)])
         x.tiles.append([i*2 for i in range(64)])
-        y = NCGR()
-        y.unpack(x.pack())
+        y = NCGR.unpack(x.pack())
 
         self.assertEqual(x, y)
     
@@ -27,9 +27,20 @@ class TestNcgr(unittest.TestCase):
         x = NCGR()
         x.tiles.append([i&0xf for i in range(64)])
         x.tiles.append([(i*2)&0xf for i in range(64)])
-        y = NCGR()
-        y.unpack(x.pack())
+        y = NCGR.unpack(x.pack())
         self.assertEqual(x, y)
+
+    def test_unpack(self):
+        x = NCGR.load_from(EXAMPLE_NCGR)
+        self.assertEqual(x.width, 32)
+        self.assertEqual(x.width*x.height, len(x.tiles))
+        self.assertEqual(x.bpp, 8)
+        self.assertEqual(x.ncbr, False)
+
+    def test_repack_matches_original(self):
+        with open(EXAMPLE_NCGR, "rb") as f:
+            x = f.read()
+        self.assertEqual(x, NCGR.unpack(x).pack())
 
     def test_tileflip(self):
         test_tile = [i&0xf for i in range(64)]

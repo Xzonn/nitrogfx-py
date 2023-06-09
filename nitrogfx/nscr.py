@@ -10,9 +10,9 @@ class MapEntry:
 
         def pack(self):
                 x = self.tile & 0x3ff
-                x |= (self.xflip << 10) & 1
-                x |= (self.yflip << 11) & 1
-                x |= (self.pal << 12) & 0xF
+                x |= (self.xflip & 1) << 10
+                x |= (self.yflip & 1) << 11
+                x |= (self.pal & 0xf) << 12
                 return struct.pack("<H", x)
 
         def unpack(data):
@@ -24,7 +24,7 @@ class MapEntry:
                     return False
                 return self.pack() == other.pack()
 
-class NSCR:
+class NSCR():
 
         def __init__(self, w, h):
                 # in pixels
@@ -58,6 +58,10 @@ class NSCR:
                         map_.append(MapEntry.unpack(raw))
                 nscr.map = map_
                 return nscr
+
+        def load_from(filename):
+            with open(filename, "rb") as f:
+                 return NSCR.unpack(f.read())
 
         def __eq__(self, other):
                 return self.width == other.width and self.height == other.height and self.map == other.map

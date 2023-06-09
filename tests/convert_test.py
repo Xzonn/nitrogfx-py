@@ -1,6 +1,9 @@
 import unittest
 import nitrogfx.convert as conv
 from nitrogfx.ncer import NCER
+from nitrogfx.nscr import NSCR
+from nitrogfx.nclr import NCLR
+from nitrogfx.ncgr import NCGR
 import tempfile
 from PIL import Image
 
@@ -46,3 +49,6 @@ class ConvertTest(unittest.TestCase):
                 ncer2 = conv.json_to_ncer(tdir+"tmp.json")
             ncer2.texu = 1 # this is currently not stored in the json
             self.assertEqual(ncer, ncer2)
+
+
+

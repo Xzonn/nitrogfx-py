@@ -13,6 +13,6 @@ def RGB555ToColor(c):
     return (8*r, 8*g, 8*b)
 
 
-def packNitroHeader(magic : str, size, section_count):
-    return magic.encode("ascii") + struct.pack("<IIHH", 0x100FEFF, size+16, 0x10, section_count)
+def packNitroHeader(magic : str, size, section_count, unk=0):
+    return magic.encode("ascii") + struct.pack("<HBBIHH", 0xFEFF, unk, 1, size+16, 0x10, section_count)
 

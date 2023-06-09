@@ -2,6 +2,7 @@
 import unittest
 from nitrogfx.nscr import NSCR, MapEntry
 
+EXAMPLE_NSCR = "test_data/edu011_LZ.bin/edu011.NSCR"
 
 class TestNscr(unittest.TestCase):
 
@@ -33,3 +34,7 @@ class TestNscr(unittest.TestCase):
         z = NSCR.unpack(y)
         self.assertEqual(x, z)
 
+    def test_repack_matches_original(self):
+        with open(EXAMPLE_NSCR, "rb") as f:
+            x = f.read()
+        self.assertEqual(x, NSCR.unpack(x).pack())
