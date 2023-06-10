@@ -26,6 +26,4 @@ class TestNclr(unittest.TestCase):
     def test_repack_matches_original(self):
         with open(EXAMPLE_NCLR, "rb") as f:
             x = f.read()
-        with open("teee.bin", "wb") as f:
-            f.write(NCLR.unpack(x).pack())
         self.assertEqual(x, NCLR.unpack(x).pack())

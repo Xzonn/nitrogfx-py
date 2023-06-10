@@ -56,7 +56,6 @@ def draw_tile(pixels, ncgr, map_entry, x, y):
                     try:
                         pali = tiledata[8*y2 + x2]
                     except:
-                        print("draw_tile ", map_entry.tile, len(tiledata))
                         return
                     pixels[x+x2, y+y2] = pali
 
@@ -70,7 +69,9 @@ def nclr_to_imgpal(nclr):
         return result
 
 
-def ncgr_to_img(ncgr, nclr):
+
+
+def ncgr_to_img(ncgr, nclr=NCLR.get_monochrome_nclr()):
     "Create an Image from NCGR tileset and NCLR palette"
     w = ncgr.width
     h = ncgr.height
@@ -78,13 +79,12 @@ def ncgr_to_img(ncgr, nclr):
     pixels = img.load()
     for y in range(h):
         for x in range(w):
-            print(y*w+x, x, y, w, h)
             entry = MapEntry(y*w+x)
             draw_tile(pixels, ncgr, entry, x*8, y*8)
     img.putpalette(nclr_to_imgpal(nclr))
     return img
 
-def ncgr_to_png(ncgr, img_name, nclr):
+def ncgr_to_png(ncgr, img_name, nclr=NCLR.get_monochrome_nclr()):
     ncgr_to_img(ncgr, nclr).save(img_name, "PNG")
 
 
@@ -101,7 +101,7 @@ def png_to_ncgr(img_name):
     return img_to_ncgr(Image.open(img_name))
 
 
-def draw_8bpp_tilemap(img_name, ncgr, nscr, nclr):
+def draw_8bpp_tilemap(img_name, ncgr, nscr, nclr=NCLR.get_monochrome_nclr()):
         img = Image.new("P", (nscr.width, nscr.height), (0,0,0,0))
         pixels = img.load()
         for y in range(nscr.height // 8):

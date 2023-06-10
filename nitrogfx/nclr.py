@@ -53,3 +53,7 @@ class NCLR():
                 return f"<NCLR ({self.ncpr}, {self.is8bpp}) with {len(self.colors)} colors>"
 
 
+        def get_monochrome_nclr():
+            pal = NCLR()
+            pal.colors = [(i&0xf8,i&0xf8,i&0xf8) for i in range(256)]
+            return pal

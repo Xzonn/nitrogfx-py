@@ -3,6 +3,7 @@ from nitrogfx.ncgr import NCGR
 from nitrogfx.ncgr import flip_tile
 
 EXAMPLE_NCGR = "test_data/edu011_LZ.bin/edu011.NCGR"
+EXAMPLE_NCBR = "test_data/npc.NCBR"
 
 class TestNcgr(unittest.TestCase):
 
@@ -37,8 +38,13 @@ class TestNcgr(unittest.TestCase):
         self.assertEqual(x.bpp, 8)
         self.assertEqual(x.ncbr, False)
 
-    def test_repack_matches_original(self):
+    def test_ncgr_repack_matches_original(self):
         with open(EXAMPLE_NCGR, "rb") as f:
+            x = f.read()
+        self.assertEqual(x, NCGR.unpack(x).pack())
+    
+    def test_ncbr_repack_matches_original(self):
+        with open(EXAMPLE_NCBR, "rb") as f:
             x = f.read()
         self.assertEqual(x, NCGR.unpack(x).pack())
 
