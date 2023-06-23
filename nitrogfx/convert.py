@@ -20,13 +20,9 @@ def get_img_palette(img):
 
 def get_tile_data(img, x, y):
     "Get all Image pixels in a tile as a list"
-    result = []
-    for i in range(8):
-        for j in range(8):
-            result.append(img.getpixel((x+j, y+i)))
-    return result
+    return [img.getpixel((x+j, y+i)) for i in range(8) for j in range(8)]
 
-def tilemap_from_8bpp_img(img):
+def tilemap_from_8bpp_img(img, use_flipping=True):
         "Get NCLR, NSCR and NCGR from an 256-color indexed image"
         nclr = get_img_palette(img)
         
@@ -39,7 +35,7 @@ def tilemap_from_8bpp_img(img):
         for y in range(0, img.height, 8): #for each tile
                 for x in range(0, img.width, 8):
                         tile = get_tile_data(img, x, y)
-                        map_entry = ncgr.find_tile(tile)
+                        map_entry = ncgr.find_tile(tile, use_flipping)
                         if map_entry == None:
                                 map_entry = MapEntry(len(tiles))
                                 tiles.append(tile)
@@ -48,8 +44,8 @@ def tilemap_from_8bpp_img(img):
         ncgr.height = len(ncgr.tiles)
         return (ncgr, nscr, nclr)
 
-def png_to_tilemap(png_name):
-	return tilemap_from_8bpp_img(Image.open(png_name))
+def png_to_tilemap(png_name, use_flipping=True):
+    return tilemap_from_8bpp_img(Image.open(png_name), use_flipping)
 
 def draw_tile(pixels, ncgr, map_entry, x, y):
         tiledata = flip_tile(ncgr.tiles[map_entry.tile], map_entry.xflip, map_entry.yflip)

@@ -2,14 +2,16 @@ import struct
 import nitrogfx.util as util
 from nitrogfx.nscr import MapEntry
 
+
 class NCGR():
+    "Class for representing NCGR and NCBR tilesets"
     def __init__(self, bpp=4):
-        self.bpp = bpp
-        self.tiles = []
-        self.width = 0 #in tiles
-        self.height = 0 #in tiles
-        self.ncbr = False
-        self.unk = 0    #last 4 bytes of header
+        self.bpp = bpp # bits per pixel (4 or 8)
+        self.tiles = [] # each tile is a list of 64 ints
+        self.width = 0 # in tiles
+        self.height = 0 # in tiles
+        self.ncbr = False # is file encoded as NCBR
+        self.unk = 0    # last 4 bytes of header
 
 
     def __pack_tile(self, tile):
@@ -18,6 +20,8 @@ class NCGR():
         return bytes(tile)
 
     def pack(self):
+        """Pack NCGR into bytes
+        :return: bytes"""
         has_sopc = not self.ncbr
         tiledat_size = (0x40 if self.bpp == 8 else 0x20) * len(self.tiles)
         if len(self.tiles) > self.width*self.height:
@@ -82,6 +86,10 @@ class NCGR():
         return result
 
     def unpack(data):
+        """Unpack NCGR from bytes
+        :param data: bytes
+        :return: NCGR object
+        """
         self = NCGR()
         sect_size, self.height, self.width, bpp, mapping, mode, tiledatsize, self.unk = struct.unpack("<IHHIIIII", data[0x14:0x14+28])
         self.bpp = 4 if bpp == 3 else 8
@@ -97,10 +105,18 @@ class NCGR():
         return self
 
 
-    def find_tile(self, tile):
+    def find_tile(self, tile, flipping=True):
+        """
+        Return tilemap entry of a tile in the tileset, or None if tile is not in tileset
+        :param tile: a tile (list of length 64)
+        :param flipping: whether to consider flipped tiles.
+        :return: MapEntry or None
+        """
         for (idx,t) in enumerate(self.tiles):
             if t == tile:
                 return MapEntry(idx, 0, False, False)
+            if not flipping:
+                return None
             if tile == flip_tile(t, False, True):
                 return MapEntry(idx, 0, False, True)
             if tile == flip_tile(t, True, False):
@@ -111,10 +127,16 @@ class NCGR():
 
 
     def save_as(self, filepath : str):
+        """Save NCGR as file
+        :param filepath: path to file"""
         with open(filepath, "wb") as f:
             f.write(self.pack())
         
     def load_from(filename):
+        """Read NCGR data from a file
+        :param filename: path to NCGR file
+        :return: NCGR object
+        """
         with open(filename, "rb") as f:
             return NCGR.unpack(f.read())
 
@@ -126,11 +148,18 @@ class NCGR():
 
 
 
-def flip_tile(tile, xflip, yflip):
-        if xflip and yflip:
-            return [tile[8*y+x] for y in range(7,-1,-1) for x in range(7,-1,-1)]
-        elif xflip:
-            return [tile[8*y+x] for y in range(7,-1,-1) for x in range(8)]
-        elif yflip:
-            return [tile[8*y+x] for y in range(8) for x in range(7,-1,-1)]
-        return tile
+def flip_tile(tile, xflip : bool, yflip : bool):
+    """Flips a tile horizontally and/or vertically
+    :param tile: a tile
+    :param xflip: flip horizontally?
+    :param yflip: flip vertically?
+    :return: flipped tile
+    """
+    if xflip and yflip:
+        return [tile[8*y+x] for y in range(7,-1,-1) for x in range(7,-1,-1)]
+    elif xflip:
+        return [tile[8*y+x] for y in range(7,-1,-1) for x in range(8)]
+    elif yflip:
+        return [tile[8*y+x] for y in range(8) for x in range(7,-1,-1)]
+    return tile
+
