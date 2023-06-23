@@ -87,6 +87,10 @@ class NCGR():
         self.bpp = 4 if bpp == 3 else 8
         self.ncbr = mode == 1
         tile_cnt = self.height*self.width
+        if tiledatsize < tile_cnt * (0x40 if self.bpp == 8 else 0x20):
+        	self.width = 1
+        	self.height = tiledatsize // (0x40 if self.bpp == 8 else 0x20)
+        	tile_cnt = self.height*self.width
 
         for i in range(tile_cnt):
             self.tiles.append(self.__unpack_tile(data[0x30:], i))
@@ -132,34 +136,4 @@ def flip_tile(tile, xflip, yflip):
                         x2 = 7-x if xflip else x
                         t.append(tile[8*y2+x2])
         return t
-"""
-for (int y = 0; y < tilesY; y++) {
-                        for (int x = 0; x < tilesX; x++) {
 
-                                int offset = x * 4 + 4 * y * tilesX * 8;
-                                BYTE *tile = calloc(64, 1);
-                                tiles[x + y * tilesX] = tile;
-                                if (depth == 8) {
-                                        offset *= 2;
-                                        BYTE *indices = buffer + offset;
-                                        memcpy(tile, indices, 8);
-                                        memcpy(tile + 8, indices + 8 * tilesX, 8);
-                                        memcpy(tile + 16, indices + 16 * tilesX, 8);
-                                        memcpy(tile + 24, indices + 24 * tilesX, 8);
-                                        memcpy(tile + 32, indices + 32 * tilesX, 8);
-                                        memcpy(tile + 40, indices + 40 * tilesX, 8);
-                                        memcpy(tile + 48, indices + 48 * tilesX, 8);
-                                        memcpy(tile + 56, indices + 56 * tilesX, 8);
-                                } else if (depth == 4) {
-                                        BYTE *indices = buffer + offset;
-                                        for (int j = 0; j < 8; j++) {
-                                                for (int i = 0; i < 4; i++) {
-                                                        tile[i * 2 + j * 8] = indices[i + j * 4 * tilesX] & 0xF;
-                                                        tile[i * 2 + 1 + j * 8] = indices[i + j * 4 * tilesX] >> 4;
-                                                }
-                                        }
-                                }
-
-                        }
-                }
-"""
