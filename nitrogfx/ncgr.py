@@ -127,13 +127,10 @@ class NCGR():
 
 
 def flip_tile(tile, xflip, yflip):
-        if not xflip and not yflip:
-                return tile
-        t = []
-        for y in range(8):
-                for x in range(8):
-                        y2 = 7-y if yflip else y
-                        x2 = 7-x if xflip else x
-                        t.append(tile[8*y2+x2])
-        return t
-
+        if xflip and yflip:
+            return [tile[8*y+x] for y in range(7,-1,-1) for x in range(7,-1,-1)]
+        elif xflip:
+            return [tile[8*y+x] for y in range(7,-1,-1) for x in range(8)]
+        elif yflip:
+            return [tile[8*y+x] for y in range(8) for x in range(7,-1,-1)]
+        return tile
