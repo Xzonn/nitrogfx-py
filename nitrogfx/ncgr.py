@@ -117,11 +117,11 @@ class NCGR():
                 return MapEntry(idx, 0, False, False)
             if not flipping:
                 return None
-            if tile == flip_tile(t, False, True):
+            if compare_flipped_tile(tile, t, False, True):
                 return MapEntry(idx, 0, False, True)
-            if tile == flip_tile(t, True, False):
+            if compare_flipped_tile(tile, t, True, False):
                 return MapEntry(idx, 0, True, False)
-            if tile == flip_tile(t, True, True):
+            if compare_flipped_tile(tile, t, True, True):
                 return MapEntry(idx, 0, True, True)
         return None
 
@@ -157,9 +157,19 @@ def flip_tile(tile, xflip : bool, yflip : bool):
     """
     if xflip and yflip:
         return [tile[8*y+x] for y in range(7,-1,-1) for x in range(7,-1,-1)]
-    elif xflip:
-        return [tile[8*y+x] for y in range(7,-1,-1) for x in range(8)]
     elif yflip:
+        return [tile[8*y+x] for y in range(7,-1,-1) for x in range(8)]
+    elif xflip:
         return [tile[8*y+x] for y in range(8) for x in range(7,-1,-1)]
     return tile
+
+def compare_flipped_tile(tile1, tile2, xflip, yflip):
+    "Returns (tile2 == flip_tile(tile1, xflip, yflip)) but faster"
+    for y in range(8):
+        for x in range(8):
+            y2 = 7-y if yflip else y
+            x2 = 7-x if xflip else x
+            if tile2[8*y+x] != tile1[8*y2+x2]:
+                return False
+    return True
 

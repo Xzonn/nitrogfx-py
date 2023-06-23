@@ -48,10 +48,10 @@ def png_to_tilemap(png_name, use_flipping=True):
     return tilemap_from_8bpp_img(Image.open(png_name), use_flipping)
 
 def draw_tile(pixels, ncgr, map_entry, x, y):
-        tiledata = flip_tile(ncgr.tiles[map_entry.tile], map_entry.xflip, map_entry.yflip)
-        for y2 in range(8):
-                for x2 in range(8):
-                    pixels[x+x2, y+y2] = tiledata[8*y2 + x2]
+    tiledata = flip_tile(ncgr.tiles[map_entry.tile], map_entry.xflip, map_entry.yflip)
+    for y2 in range(8):
+        for x2 in range(8):
+            pixels[x+x2, y+y2] = tiledata[8*y2 + x2]
 
 def nclr_to_imgpal(nclr):
         "Convert nclr to palette used by PIL.Image"

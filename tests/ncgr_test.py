@@ -59,3 +59,7 @@ class TestNcgr(unittest.TestCase):
         self.assertEqual(flip_tile(yflip, False, True), test_tile)
         self.assertEqual(flip_tile(xyflip, True, True), test_tile)
 
+        self.assertEqual(xflip[0], test_tile[7])
+        self.assertEqual(yflip[0], test_tile[56])
+        self.assertEqual(xyflip[0], test_tile[-1])
+
