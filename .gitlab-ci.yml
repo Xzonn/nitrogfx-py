@@ -3,13 +3,24 @@ default:
 
 stages:
   - test
+  - doc
 
+
+before_script:
+  - pip install .
+  - pip install pdoc pytest
 
 unit-test-job:
   stage: test
   script:
-    - pip install .
-    - pip install pytest
     - pytest
 
 
+pages:
+  stage: doc
+  script:
+    - pdoc nitrogfx -o public
+  artifacts:
+    paths:
+      # The folder that contains the files to be exposed at the Page URL
+      - public
