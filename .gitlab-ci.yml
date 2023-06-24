@@ -1,0 +1,19 @@
+default:
+    image: python:3.8.17-slim
+
+stages:
+  - build
+  - test
+
+install-job:
+  stage: build
+  script:
+    - pip install .
+    - pip install pytest
+
+unit-test-job:
+  stage: test
+  script:
+    - pytest
+
+
