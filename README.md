@@ -11,12 +11,15 @@ Currently it supports:
 
 The formats aren't perfectly implemented so the this most likely won't work with every game out there.
 
-## Install from source
+## Install from pip
+
+    pip install nitrogfx-py
+
+## Install from source (for development)
 
     git clone https://gitlab.com/Fexean/ntrgfx-py
-    cd nitrogfx-py
     pip install --upgrade pip
-    pip install -e .
+    pip install -e ntrgfx-py
 
 ## Documentation
 
