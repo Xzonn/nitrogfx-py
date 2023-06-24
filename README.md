@@ -9,7 +9,7 @@ Currently it supports:
 - NCLR palettes
 - NCER sprite data
 
-The formats aren't perfectly implemented so the this most likely won't work with every game out there.
+The formats aren't perfectly implemented so this most likely won't work with every file from every game out there.
 
 ## Install from pip
 
@@ -23,5 +23,7 @@ The formats aren't perfectly implemented so the this most likely won't work with
 
 ## Documentation
 
-The code is documented with docstrings. You can view them online at: https://fexean.gitlab.io/ntrgfx-py/nitrogfx.html
+The code is documented with docstrings.
+
+You can view them online at: https://fexean.gitlab.io/ntrgfx-py
 
