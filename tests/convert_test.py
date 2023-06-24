@@ -20,24 +20,24 @@ class ConvertTest(unittest.TestCase):
 
         def test_tileset_read(self):
                 im = Image.open(TEST_IMG_8BPP)
-                (ncgr, nscr, nclr) = conv.tilemap_from_8bpp_img(im)
+                (ncgr, nscr, nclr) = conv.img_to_nscr(im)
                 self.assertEqual(len(ncgr.tiles), 4)
                 self.assertEqual(ncgr.bpp, 8)
         
         def test_tilemap_read(self):
                 im = Image.open(TEST_IMG_8BPP)
-                (ncgr, nscr, nclr) = conv.tilemap_from_8bpp_img(im)
+                (ncgr, nscr, nclr) = conv.img_to_nscr(im)
 
                 self.assertEqual(nscr.width, 256)
                 self.assertEqual(nscr.height, 128)
         
         def test_tilemap_draw(self):
                 im = Image.open(TEST_IMG_8BPP)
-                (ncgr1, nscr1, nclr1) = conv.tilemap_from_8bpp_img(im)
+                (ncgr1, nscr1, nclr1) = conv.img_to_nscr(im)
                 with tempfile.TemporaryDirectory() as tdir:
-                        conv.draw_8bpp_tilemap(tdir+"/test2.png", ncgr1, nscr1, nclr1)
+                        conv.nscr_to_png(tdir+"/test2.png", ncgr1, nscr1, nclr1)
                         im2 = Image.open(tdir+"/test2.png")
-                        (ncgr2, nscr2, nclr2) = conv.tilemap_from_8bpp_img(im2)
+                        (ncgr2, nscr2, nclr2) = conv.img_to_nscr(im2)
                 self.assertEqual(ncgr1, ncgr2)
                 self.assertEqual(nscr1, nscr2)
                 self.assertEqual(nclr1, nclr2)
@@ -52,7 +52,7 @@ class ConvertTest(unittest.TestCase):
 
         def test_ncgr_png_conversion(self):
             im = Image.open(TEST_IMG_8BPP)
-            (ncgr, nscr, nclr) = conv.tilemap_from_8bpp_img(im)
+            (ncgr, nscr, nclr) = conv.img_to_nscr(im)
             i2 = conv.ncgr_to_img(ncgr, nclr)
             self.assertEqual(ncgr, conv.img_to_ncgr(i2))
 

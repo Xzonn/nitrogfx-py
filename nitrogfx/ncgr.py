@@ -30,7 +30,7 @@ class NCGR():
         sect_size = 0x20 + tiledat_size
         bitdepth = 4 if self.bpp == 8 else 3
 
-        header = util.packNitroHeader("RGCN", sect_size+(0x10 if has_sopc else 0), (2 if has_sopc else 1), 1)
+        header = util.pack_nitro_header("RGCN", sect_size+(0x10 if has_sopc else 0), (2 if has_sopc else 1), 1)
         header2 = b"RAHC"+ struct.pack("<IHHIIIII", sect_size, self.height, self.width, bitdepth, 0, self.ncbr, tiledat_size, self.unk)
         
         if self.ncbr:

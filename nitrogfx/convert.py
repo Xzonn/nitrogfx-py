@@ -1,14 +1,16 @@
 from nitrogfx.ncgr import NCGR, flip_tile
-from nitrogfx.nscr import NSCR
+from nitrogfx.nscr import NSCR, MapEntry
 from nitrogfx.nclr import NCLR
 from nitrogfx.ncer import NCER, Cell, OAM
-from nitrogfx.nscr import MapEntry
-
+from nitrogfx.util import draw_tile
 from PIL import Image
 import json
 
 def get_img_palette(img):
-        "Creates NCLR palette from indexed Image"
+        """Creates NCLR palette from the color table of an indexed Image
+        :param img: Indexed Pillow Image
+        :return: NCLR object
+        """
         def readColor(list, i):
                 return (list[i], list[i+1], list[i+2])
         pal = img.getpalette()
@@ -19,20 +21,33 @@ def get_img_palette(img):
 
 
 def get_tile_data(img, x, y):
-    "Get all Image pixels in a tile as a list"
+    """Reads an 8x8 tile from an Indexed Pillow Image.
+    :param img: Indexed Pillow Image
+    :param x: X-coordinate of top left corner of the tile
+    :param y: Y-coordinate of top left corner of the tile
+    :return: a tile (list of 64 ints)
+    """
     return [img.getpixel((x+j, y+i)) for i in range(8) for j in range(8)]
 
-def tilemap_from_8bpp_img(img, use_flipping=True):
-        "Get NCLR, NSCR and NCGR from an 256-color indexed image"
+def img_to_nscr(img, bpp=8, use_flipping=True):
+        """Creates a NCGR tileset, NSCR tilemap and NCLR palette from an indexed Pillow Image.
+        
+        :param img: indexed Pillow Image
+        :param bpp: bits-per-pixel (4 for 16 colors, 8 for 256 colors)
+        :param use_flipping: Flip tiles to reduce size of the tileset, at the cost of performance.
+        :return: tuple of (NCGR, NSCR, NCLR)
+        """
         nclr = get_img_palette(img)
+        nclr.bpp = bpp
         
         ncgr = NCGR()
-        ncgr.bpp = 8
+        ncgr.tiles.append([0 for i in range(64)])
+        ncgr.bpp = bpp
 
         tiles = ncgr.tiles
         nscr = NSCR(img.width, img.height)
 
-        for y in range(0, img.height, 8): #for each tile
+        for y in range(0, img.height, 8):
                 for x in range(0, img.width, 8):
                         tile = get_tile_data(img, x, y)
                         map_entry = ncgr.find_tile(tile, use_flipping)
@@ -44,29 +59,38 @@ def tilemap_from_8bpp_img(img, use_flipping=True):
         ncgr.height = len(ncgr.tiles)
         return (ncgr, nscr, nclr)
 
-def png_to_tilemap(png_name, use_flipping=True):
-    return tilemap_from_8bpp_img(Image.open(png_name), use_flipping)
+def png_to_tilemap(png_name : str, bpp=8, use_flipping=True):
+    """Creates a NCGR tileset, NSCR tilemap and NCLR palette from an indexed PNG.    
+    :param png_name: Path to indexed PNG
+    :param bpp: bits-per-pixel (4 for 16 colors, 8 for 256 colors)
+    :param use_flipping: Flip tiles to reduce size of the tileset, at the cost of performance.
+    :return: tuple of (NCGR, NSCR, NCLR)
+    """
+    return img_to_nscr(Image.open(png_name), bpp, use_flipping)
 
-def draw_tile(pixels, ncgr, map_entry, x, y):
-    tiledata = flip_tile(ncgr.tiles[map_entry.tile], map_entry.xflip, map_entry.yflip)
-    for y2 in range(8):
-        for x2 in range(8):
-            pixels[x+x2, y+y2] = tiledata[8*y2 + x2]
+
 
 def nclr_to_imgpal(nclr):
-        "Convert nclr to palette used by PIL.Image"
-        result = []
-        for color in nclr.colors:
-                result.append(color[0])
-                result.append(color[1])
-                result.append(color[2])
-        return result
+    """Creates Pillow Image color table from NCLR palette.
+    :param nclr: NCLR object
+    :return: RGB array compatible with Image.putpalette
+    """
+    result = []
+    for color in nclr.colors:
+        result.append(color[0])
+        result.append(color[1])
+        result.append(color[2])
+    return result
 
 
 
 
 def ncgr_to_img(ncgr, nclr=NCLR.get_monochrome_nclr()):
-    "Create an Image from NCGR tileset and NCLR palette"
+    """Create an Image from NCGR tileset and NCLR palette.
+    :param ncgr: NCGR object
+    :param nclr: NCLR object
+    :return: Pillow Image
+    """
     w = ncgr.width
     h = ncgr.height
     img = Image.new("P", (8*w, 8*h), (0,0,0,0))
@@ -79,10 +103,20 @@ def ncgr_to_img(ncgr, nclr=NCLR.get_monochrome_nclr()):
     return img
 
 def ncgr_to_png(ncgr, img_name, nclr=NCLR.get_monochrome_nclr()):
+    """Runs ncgr_to_img on a PNG file
+    :param ncgr: NCGR tileset
+    :param img_name: Path to produced PNG file
+    """
     ncgr_to_img(ncgr, nclr).save(img_name, "PNG")
 
 
 def img_to_ncgr(img, _8bpp=True):
+    """Produces an NCGR tileset from an indexed Pillow Image.
+
+    :param img: Pillow Image with indexed colors
+    :param _8bpp: Sets bpp field of NCGR object
+    :return: NCGR object
+    """
     ncgr = NCGR(8 if _8bpp else 4)
     ncgr.width = img.width // 8
     ncgr.height = img.height // 8
@@ -92,22 +126,45 @@ def img_to_ncgr(img, _8bpp=True):
     return ncgr
 
 def png_to_ncgr(img_name):
+    """Runs img_to_ncgr with a PNG file
+    :param img_name: Path to input PNG file
+    :return: NCGR object
+    """
     return img_to_ncgr(Image.open(img_name))
 
 
-def draw_8bpp_tilemap(img_name, ncgr, nscr, nclr=NCLR.get_monochrome_nclr()):
-        img = Image.new("P", (nscr.width, nscr.height), (0,0,0,0))
-        pixels = img.load()
-        for y in range(nscr.height // 8):
-                for x in range(nscr.width // 8):
-                        entry = nscr.get_entry(x, y)
-                        draw_tile(pixels, ncgr, entry, x*8, y*8)
-        img.putpalette(nclr_to_imgpal(nclr))
-        img.save(img_name, "PNG")
+def nscr_to_img(ncgr, nscr, nclr=NCLR.get_monochrome_nclr()):
+    """Produces an image from a tilemap, tileset and palette
+
+    :param ncgr: NCGR tileset
+    :param nscr: NSCR tilemap
+    :param nclr: NCLR palette
+    :return: Pillow Image
+    """
+    img = Image.new("P", (nscr.width, nscr.height), (0,0,0,0))
+    pixels = img.load()
+    for y in range(nscr.height // 8):
+        for x in range(nscr.width // 8):
+            entry = nscr.get_entry(x, y)
+            draw_tile(pixels, ncgr, entry, x*8, y*8)
+    img.putpalette(nclr_to_imgpal(nclr))
+    return img
+
+def nscr_to_png(img_name, ncgr, nscr, nclr=NCLR.get_monochrome_nclr()):
+    """Stores result of nscr_to_img in a png file
+    :param img_name: Path to produced PNG file
+    :param ncgr: NCGR tileset
+    :param nscr: NSCR tilemap
+    :param nclr: NCLR palette
+    """
+    nscr_to_img(ncgr, nscr, nclr).save(img_name, "PNG")
 
 
 def json_to_ncer(filename):
-    "Read NCER data from a JSON file"
+    """Reads NCER data from a JSON file. Counterpart to ncer_to_json.
+    :param filename: Path to JSON file
+    :return: NCER object
+    """
     with open(filename) as f:
         data = json.loads(f.read())
     ncer = NCER()
@@ -175,7 +232,11 @@ def __oam_to_json(oam):
     return {"Attr0" : attr0, "Attr1" : attr1, "Attr2": attr2}
 
 def ncer_to_json(ncer, json_filename):
-    "Store NCER in a JSON file. Counterpart to decode_json"
+    """Stores NCER data in a JSON file. Counterpart to json_to_ncer
+
+    :param ncer: NCER object
+    :param json_filename: Path to produced JSON file
+    """
     data = {
         "labelEnabled" : len(ncer.labels) > 0,
         "extended" : ncer.extended,

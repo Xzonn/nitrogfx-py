@@ -3,16 +3,18 @@ import json
 import nitrogfx.util as util
 
 class NCER:
-
+    "Class for representing NCER sprite data files."
     def __init__(self):
-        self.cells = []
-        self.labels = []
+        self.cells = [] # list of Cell objects
+        self.labels = [] # list of strings
         self.extended = True
         self.mapping_type = 0
         self.texu = 0
     
     def get_size(self):
-        "Calculates the size of the canvas needed to draw the NCER"
+        """Calculates the size of the canvas needed to draw the NCER
+        :return: int tuple of (width, height)
+        """
         all_oams = [oam for cell in self.cells for oam in cell.oam]
         max_x = max([oam.x + oam.get_size()[0] for oam in all_oams])
         max_y = max([oam.y + oam.get_size()[1] for oam in all_oams])
@@ -20,7 +22,11 @@ class NCER:
         min_y = min([oam.y for oam in all_oams])
         return (max_x - min_x, max_y - min_y)
 
-    def unpack(data):
+    def unpack(data : bytes):
+        """Unpack NCER from bytes.
+        :param data: bytes
+        :return: NCER object
+        """
         ncer = NCER()
         if data[0:4] != b"RECN":
             raise Exception("Data doesn't start with NCER header.")
@@ -62,6 +68,9 @@ class NCER:
         return ncer
 
     def pack(self):
+        """Pack NCER into bytes.
+        :return: bytes
+        """
         use_labels = len(self.labels) > 0
         cell_size = len(self.cells) * (0x10 if self.extended else 0x8) + 6*sum([len(cell.oam) for cell in self.cells])
 
@@ -70,7 +79,7 @@ class NCER:
 
         labl_size = sum([len(l)+5 for l in self.labels])
         total_size = (labl_size+0x34 if use_labels else 0x20) + cell_size
-        header = util.packNitroHeader("RECN", total_size, 3 if use_labels else 1)
+        header = util.pack_nitro_header("RECN", total_size, 3 if use_labels else 1)
         header2 = struct.pack("<IIHHII",
                 0x4345424b, cell_size+0x20, len(self.cells), self.extended, 0x18, self.mapping_type)
         header2 += struct.pack("III", 0, 0,0)
@@ -100,7 +109,19 @@ class NCER:
         texu = bytes([0x54, 0x58, 0x45, 0x55, 0x0C, 0x00, 0x00, 0x00, self.texu, 0x00, 0x00, 0x00])
         return header+header2+celldata+oamdata+labl+allLabels+texu
 
-    def load_from(filename):
+    def save_as(self, filename : str):
+        """Save NCER to file.
+        :param filename: Path to produced NCER file
+        """
+        with open(filename, "wb") as f:
+            f.write(self.pack())
+            
+
+    def load_from(filename : str):
+        """Load NCER from file.
+        :param filename: Path to NCER file.
+        :return: NCER object
+        """
         with open(filename, "rb") as f:
             return NCER.unpack(f.read())
 
@@ -126,7 +147,7 @@ class Cell:
 
 
 class OAM:
-
+    "Represents an NDS OAM entry"
     __shapesize_to_dim = {(0,0) : (8,8), (0,1) : (16,16), (0,2) : (32, 32), (0,3) : (64,64),
                           (1,0) : (16,8), (1,1) : (32,8), (1,2) : (32, 16), (1,3) : (64,32),
                           (2,0) : (8,16), (2,1) : (8,32), (2,2) : (16, 32), (2,3) : (32,64)}
@@ -150,14 +171,18 @@ class OAM:
         self.pal = 0
 
     def get_size(self):
-        "Get size of OAM in pixels based on its shape and size values"
+        """Get size of OAM in pixels based on its shape and size values
+        :return: int tuple of (width, height)
+        """
         key = (self.shape, self.size)
         if key not in self.__shapesize_to_dim:
             raise Exception(f"OAM has invalid shape/size: {self.shape} {self.size}")
         return self.__shapesize_to_dim[key]
 
     def set_size(self, dimensions):
-        "Set size and shape values to make set the OAM's size in pixels, dimensions must be one of the hardware supported values"
+        """Set size and shape values to make set the OAM's size in pixels.
+        Dimensions must be one of the NDS hardware supported values
+        :param dimensions: int tuple of (width, height)"""
         for (key,value) in self.__shapesize_to_dim.items():
             if dimensions == value:
                 self.shape = key[0]
@@ -166,6 +191,7 @@ class OAM:
         raise Exception("Invalid OAM size: " + str(dimensions))
 
     def pack(self):
+        ":return: bytes"
         attr00 = (self.y & 0xff) 
         attr01 = int(self.rot) | (self.sizeDisable<<1) | (self.mode<<2) | (self.mosaic<<4) | (0 if self.colors==16 else 32) | (self.shape << 6)
         attr10 = self.x & 0xff
@@ -174,8 +200,8 @@ class OAM:
         attr21 = (self.char >> 8) | (self.prio << 2) | (self.pal << 4)
         return bytes([attr00, attr01, attr10, attr11, attr20, attr21])
     
-    def unpack(data):
-        print(data)
+    def unpack(data : bytes):
+        ":return: OAM object"
         a0, a1, a2 = struct.unpack("<HHH", data)
         self = OAM()
         self.y = a0 & 0xff
