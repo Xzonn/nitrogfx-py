@@ -18,12 +18,8 @@ dependencies = [
 	"Pillow==7.0.0"
 ]
 
-[build-system]
-requires = ["setuptools>=64.0.0", "wheel"]
-build-backend = "setuptools.build_meta"
 
-[tool.setuptools]
-py-modules = ["nitrogfx"]
 
 [project.urls]
 "Homepage" = "https://gitlab/Fexean/ntrgfx-py"
+
