@@ -1,6 +1,6 @@
 [project]
 name = "nitrogfx-py"
-version = "0.1.1"
+version = "0.1.2"
 keywords = ["NDS", "Nintendo DS", "NCGR", "NCLR", "NSCR"]
 authors = [
   { name="Fexean", email="3699814-Fexean@users.noreply.gitlab.com" },
