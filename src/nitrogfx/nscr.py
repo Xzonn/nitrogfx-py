@@ -34,11 +34,11 @@ class MapEntry:
 class NSCR():
         "Class for representing an NSCR tilemap file"
 
-        def __init__(self, w, h):
+        def __init__(self, w, h, _8bpp=True):
                 # in pixels
                 self.width = w
                 self.height = h
-
+                self.is8bpp = _8bpp
                 self.map = [MapEntry() for i in range(w*h//64)]
 
         def set_entry(self, x, y, entry : MapEntry):
@@ -64,7 +64,7 @@ class NSCR():
                 map_size = self.width * self.height * 2 // 64
                 size = map_size + 0x14
                 header = util.pack_nitro_header("RCSN", size, 1)
-                data = "NRCS".encode("ascii") + struct.pack("<IHHII", size, self.width, self.height, 1, map_size)
+                data = "NRCS".encode("ascii") + struct.pack("<IHHII", size, self.width, self.height, 1 if self.is8bpp else 0, map_size)
                 for m in self.map:
                         data += m.pack()
                 return header + data
@@ -74,9 +74,9 @@ class NSCR():
                 :param data: bytes
                 :return: NSCR object
                 """
-                size, w, h, x, map_size = struct.unpack("<IHHII", data[0x14:0x24])
+                size, w, h, bpp, map_size = struct.unpack("<IHHII", data[0x14:0x24])
                 
-                nscr = NSCR(w, h)
+                nscr = NSCR(w, h, bpp==1)
                 map_ = []
                 for i in range(0, map_size, 2):
                         raw = data[0x24+i] | (data[0x25+i] << 8)

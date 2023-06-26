@@ -45,7 +45,7 @@ def img_to_nscr(img, bpp=8, use_flipping=True):
         ncgr.bpp = bpp
 
         tiles = ncgr.tiles
-        nscr = NSCR(img.width, img.height)
+        nscr = NSCR(img.width, img.height, bpp==8)
 
         for y in range(0, img.height, 8):
                 for x in range(0, img.width, 8):
