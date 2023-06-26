@@ -38,3 +38,11 @@ class TestNscr(unittest.TestCase):
         with open(EXAMPLE_NSCR, "rb") as f:
             x = f.read()
         self.assertEqual(x, NSCR.unpack(x).pack())
+    
+    def test_example_nscr_entries_within_range(self):
+        nscr = NSCR.load_from(EXAMPLE_NSCR)
+        for entry in nscr.map:
+            self.assertTrue(entry.xflip == 0 or entry.xflip == 1)
+            self.assertTrue(entry.yflip == 0 or entry.yflip == 1)
+            self.assertTrue(entry.tile >= 0 and entry.tile < 1024)
+            self.assertTrue(entry.pal >= 0 and entry.pal < 16)

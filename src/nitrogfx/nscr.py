@@ -21,12 +21,15 @@ class MapEntry:
         def unpack(data : bytes):
                 ":return: MapEntry"
                 raw = data 
-                return MapEntry(raw & 0x3ff, raw >> 12, raw >> 10, raw >> 11)
+                return MapEntry(raw & 0x3ff, (raw >> 12) & 0xf, (raw >> 10) & 1, (raw >> 11) & 1)
         
         def __eq__(self, other):
                 if not isinstance(other, MapEntry):
                     return False
                 return self.pack() == other.pack()
+
+        def __repr__(self):
+            return f"<MapEntry tile={self.tile} pal={self.pal} xflip={self.xflip} yflip={self.yflip}>"
 
 class NSCR():
         "Class for representing an NSCR tilemap file"
