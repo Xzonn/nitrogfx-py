@@ -4,11 +4,13 @@ from nitrogfx.ncer import NCER
 from nitrogfx.nscr import NSCR
 from nitrogfx.nclr import NCLR
 from nitrogfx.ncgr import NCGR
+from nitrogfx.nanr import NANR, SeqType, SeqMode
 import tempfile
 from PIL import Image
 
 TEST_IMG_8BPP = "test_data/8bpp.png"
 MULTI_OAM_NCER = "test_data/multi_oam.NCER"
+NANR_EXAMPLE = "test_data/big_anim.NANR"
 
 class ConvertTest(unittest.TestCase):
     
@@ -56,3 +58,9 @@ class ConvertTest(unittest.TestCase):
             i2 = conv.ncgr_to_img(ncgr, nclr)
             self.assertEqual(ncgr, conv.img_to_ncgr(i2))
 
+        def test_nanr_json_conversion(self):
+            nanr = NANR.load_from(NANR_EXAMPLE)
+            with tempfile.TemporaryDirectory() as tdir:
+                conv.nanr_to_json(nanr, tdir + "tmp_nanr.json")
+                nanr2 = conv.json_to_nanr(tdir + "tmp_nanr.json")
+            self.assertEqual(nanr, nanr2)

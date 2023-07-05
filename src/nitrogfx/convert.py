@@ -3,6 +3,7 @@ from nitrogfx.nscr import NSCR, MapEntry
 from nitrogfx.nclr import NCLR
 from nitrogfx.ncer import NCER, Cell, OAM
 from nitrogfx.util import draw_tile
+from nitrogfx.nanr import NANR, Sequence, SeqMode, SeqType
 from PIL import Image
 import json
 
@@ -262,4 +263,55 @@ def ncer_to_json(ncer, json_filename):
     with open(json_filename, "w") as f:
         json.dump(data, f, indent=4)
 
+
+
+def nanr_to_json(nanr, json_filename):
+    """Stores a NANR object in a file as JSON
+    :param nanr: NANR object
+    :param json_filename: path to produced JSON file
+    """
+    def seq_to_json(seq):
+        return {    "first_frame": seq.first_frame,
+                    "type" : str(seq.type)[8:],
+                    "mode" : str(seq.mode)[8:],
+                    "frames": [vars(frame) for frame in seq.frames]
+                }
+    obj = {
+        "anims": [seq_to_json(seq) for seq in nanr.anims],
+        "texu": nanr.texu,
+        "labels": nanr.labels
+    }
+    
+    with open(json_filename, "w") as f:
+        json.dump(obj, f, indent=4)
+
+
+def json_to_nanr(json_filename):
+    """Reads NANR data from a JSON file
+    :param json_filename: path to a file generated with nanr_to_json
+    :return: NANR object
+    """
+    def json_to_seq(json):
+        seq = Sequence()
+        if "sx" in json["frames"][0].keys():
+            seq.frame_type = 1
+        elif "px" in json["frames"][0].keys():
+            seq.frame_type = 2
+        else:
+            seq.frame_type = 0
+        seq.mode = SeqMode[json["mode"]]
+        seq.type = SeqType[json["type"]]
+        for frame in json["frames"]:
+            f = seq.add_frame()
+            for key in frame.keys():
+                f.__dict__.update({key : frame[key]})
+        return seq
+
+    with open(json_filename) as f:
+        data = json.loads(f.read())
+    nanr = NANR()
+    nanr.texu = data["texu"]
+    nanr.labels = data["labels"]
+    nanr.anims = [json_to_seq(anim) for anim in data["anims"]]
+    return nanr
 
