@@ -8,6 +8,7 @@ Currently it supports:
 - NSCR tilemaps
 - NCLR palettes
 - NCER sprite data
+- NANR animation data
 
 The formats aren't perfectly implemented so this most likely won't work with every file from every game out there.
 

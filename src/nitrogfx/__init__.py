@@ -8,5 +8,6 @@ Currently supports:
 - NSCR tilemaps
 - NCLR palettes
 - NCER sprite data
+- NANR animation data
 """
 

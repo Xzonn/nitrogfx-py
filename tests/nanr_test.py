@@ -1,5 +1,5 @@
 import unittest,tempfile
-from nitrogfx.nanr import NANR, AnimMode, Frame0
+from nitrogfx.nanr import NANR, SeqType, SeqMode, Frame0
 
 EXAMPLE_NANR = "test_data/nanr.NANR"
 EXAMPLE_NANR2 = "test_data/big_anim.NANR"
@@ -35,8 +35,8 @@ class NANRTest(unittest.TestCase):
         nanr2 = NANR.load_from(EXAMPLE_NANR2)
         for i in range(len(nanr2.anims)):
             self.assertEqual(nanr2.anims[i].frame_type, 0)
-            self.assertEqual(nanr2.anims[i].mode, AnimMode.FORWARD_LOOP.value) #todo: store mode as enum
-            self.assertEqual(nanr2.anims[i].type, 1) #todo: store type as enum
+            self.assertEqual(nanr2.anims[i].mode, SeqMode.FORWARD_LOOP)
+            self.assertEqual(nanr2.anims[i].type, SeqType.CELL)
 
     def test_unpack_frame_indices_and_durations_are_correct(self):
         nanr1 = NANR.load_from(EXAMPLE_NANR)
