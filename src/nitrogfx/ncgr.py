@@ -11,8 +11,17 @@ class NCGR():
         self.width = 0 # in tiles
         self.height = 0 # in tiles
         self.ncbr = False # is file encoded as NCBR
-        self.unk = 0    # last 4 bytes of header
+        self.unk = 0x18    # last 4 bytes of header, seems to be the offset from where the tiledata is read
 
+    def set_width(self, width : int):
+        """Sets width of NCGR (in tiles). Matching height is calculated from the number of tiles.
+        :param width: desired width in tiles
+        :return: Bool, is the tilecount divided evenly with the set width & height (width*height == len(tiles)) 
+        """
+        self.width = width
+        self.height = len(self.tiles) // self.width
+        return self.width*self.height == len(self.tiles)
+            
 
     def __pack_tile(self, tile):
         if self.bpp == 4:
