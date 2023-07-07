@@ -192,7 +192,7 @@ class NANR:
         lbal_start = sectsize + 0x10
         if data[lbal_start : lbal_start + 4] == b"LBAL":
             nanr.labels = unpack_labels(data[lbal_start:])
-        nanr.texu = data[data.find(b"TXEU") + 0x8]
+        nanr.texu = data[data.find(b"TXEU", lbal_start) + 0x8]
         return nanr
 
     def load_from(filepath : str):

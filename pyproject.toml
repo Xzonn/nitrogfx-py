@@ -18,6 +18,8 @@ dependencies = [
 	"Pillow==7.0.0"
 ]
 
+[project.optional-dependencies]
+extra = ["orjson"] # for better performance on json conversion functions
 
 
 [project.urls]

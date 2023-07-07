@@ -1,5 +1,27 @@
 import struct
 import nitrogfx
+
+try:
+    # orjson is an optional dependency which significantly improves json performance
+    import orjson
+    def json_dump(data, path):
+        with open(path, "wb") as f:
+            f.write(orjson.dumps(data, option=orjson.OPT_INDENT_2))
+
+    def json_load(path):
+        with open(path, "rb") as f:
+            return orjson.loads(f.read())
+except:
+    import json
+    def json_dump(data, path):
+        with open(path, "w") as f:
+            json.dump(data, f, indent=4)
+
+    def json_load(path):
+        with open(path) as f:
+            return json.loads(f.read())
+
+
 def color_to_rgb555(c):
     """Convert (r,g,b) tuple to a 15-bit rgb value
     :param c: (r, g, b) int tuple
@@ -84,3 +106,11 @@ def draw_tile(pixels, ncgr, map_entry, x, y):
         for x2 in range(8):
             pixels[x+x2, y+y2] = tiledata[8*y2 + x2]
 
+def get_tile_data(pixels, x, y):
+    """Reads an 8x8 tile from an Indexed Pillow Image.
+    :param pixels: Indexed Pillow Image pixels obtained with Image.load()
+    :param x: X-coordinate of top left corner of the tile
+    :param y: Y-coordinate of top left corner of the tile
+    :return: a tile (list of 64 ints)
+    """
+    return [pixels[(x+j, y+i)] for i in range(8) for j in range(8)]

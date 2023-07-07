@@ -70,18 +70,21 @@ class NCGR():
 
     def __unpack_ncbr_tile(self, data, tilenum):
         x,y = (tilenum % self.width, tilenum // self.width)
-        result = b""
+        result = []
         offset = x * 4 + 4*y*self.width*8
         if self.bpp == 8:
             for i in range(8):
-                result += data[2*offset+i*self.width : 2*offset+i*self.width + 8]
+                for j in range(8):
+                    result.append(int(data[2*offset+i*self.width+j]))
         else:
             for j in range(8):
                 for i in range(4):
-                    ptr = offset + i + j*4*self.width
-                    result += bytes([data[ptr] & 0xf])
-                    result += bytes([data[ptr] >> 4])
-        return list(result)
+                    value = data[offset+i]
+                    result.append(value & 0xf)
+                    result.append(value >> 4)
+                offset += 4*self.width
+
+        return result
 
     def __unpack_tile(self, data, tilenum):
         if self.ncbr:

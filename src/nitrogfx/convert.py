@@ -2,10 +2,10 @@ from nitrogfx.ncgr import NCGR, flip_tile
 from nitrogfx.nscr import NSCR, MapEntry
 from nitrogfx.nclr import NCLR
 from nitrogfx.ncer import NCER, Cell, OAM
-from nitrogfx.util import draw_tile
+from nitrogfx.util import draw_tile, json_dump, json_load, get_tile_data
 from nitrogfx.nanr import NANR, Sequence, SeqMode, SeqType
 from PIL import Image
-import json
+
 
 def get_img_palette(img):
         """Creates NCLR palette from the color table of an indexed Image
@@ -55,14 +55,6 @@ def jasc_to_nclr(jasc_path):
     return nclr
         
 
-def get_tile_data(img, x, y):
-    """Reads an 8x8 tile from an Indexed Pillow Image.
-    :param img: Indexed Pillow Image
-    :param x: X-coordinate of top left corner of the tile
-    :param y: Y-coordinate of top left corner of the tile
-    :return: a tile (list of 64 ints)
-    """
-    return [img.getpixel((x+j, y+i)) for i in range(8) for j in range(8)]
 
 def img_to_nscr(img, bpp=8, use_flipping=True):
         """Creates a NCGR tileset, NSCR tilemap and NCLR palette from an indexed Pillow Image.
@@ -81,10 +73,10 @@ def img_to_nscr(img, bpp=8, use_flipping=True):
 
         tiles = ncgr.tiles
         nscr = NSCR(img.width, img.height, bpp==8)
-
+        img_pixels = img.load()
         for y in range(0, img.height, 8):
                 for x in range(0, img.width, 8):
-                        tile = get_tile_data(img, x, y)
+                        tile = get_tile_data(img_pixels, x, y)
                         map_entry = ncgr.find_tile(tile, use_flipping)
                         if map_entry == None:
                                 map_entry = MapEntry(len(tiles))
@@ -155,9 +147,10 @@ def img_to_ncgr(img, _8bpp=True):
     ncgr = NCGR(8 if _8bpp else 4)
     ncgr.width = img.width // 8
     ncgr.height = img.height // 8
+    img_pixels = img.load()
     for y in range(0,img.height,8):
         for x in range(0,img.width,8):
-            ncgr.tiles.append(get_tile_data(img, x, y))
+            ncgr.tiles.append(get_tile_data(img_pixels, x, y))
     return ncgr
 
 def png_to_ncgr(img_name):
@@ -200,8 +193,7 @@ def json_to_ncer(filename):
     :param filename: Path to JSON file
     :return: NCER object
     """
-    with open(filename) as f:
-        data = json.loads(f.read())
+    data = json_load(filename)
     ncer = NCER()
     ncer.extended = data["extended"]
     ncer.mapping_type = data["mappingType"]
@@ -293,9 +285,7 @@ def ncer_to_json(ncer, json_filename):
     data["cells"] = cellArray
     data["labels"] = [label for label in ncer.labels]
     data["labelCount"] = len(ncer.labels)
-
-    with open(json_filename, "w") as f:
-        json.dump(data, f, indent=4)
+    json_dump(data, json_filename)
 
 
 
@@ -316,8 +306,7 @@ def nanr_to_json(nanr, json_filename):
         "labels": nanr.labels
     }
     
-    with open(json_filename, "w") as f:
-        json.dump(obj, f, indent=4)
+    json_dump(obj, json_filename)
 
 
 def json_to_nanr(json_filename):
@@ -340,9 +329,7 @@ def json_to_nanr(json_filename):
             for key in frame.keys():
                 f.__dict__.update({key : frame[key]})
         return seq
-
-    with open(json_filename) as f:
-        data = json.loads(f.read())
+    data = json_load(json_filename)
     nanr = NANR()
     nanr.texu = data["texu"]
     nanr.labels = data["labels"]

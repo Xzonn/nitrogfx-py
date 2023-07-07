@@ -63,7 +63,7 @@ class NCER:
                 if label_data_found == labl_size:
                     break
             ncer.labels.reverse()
-            ncer.texu = data[data.find(b"TXEU") + 0x8]
+            ncer.texu = data[data.find(b"TXEU", labl_start) + 0x8]
 
         return ncer
 
