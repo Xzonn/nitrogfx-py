@@ -64,3 +64,11 @@ class ConvertTest(unittest.TestCase):
                 conv.nanr_to_json(nanr, tdir + "tmp_nanr.json")
                 nanr2 = conv.json_to_nanr(tdir + "tmp_nanr.json")
             self.assertEqual(nanr, nanr2)
+
+        def test_nclr_jasc_conversion(self):
+            im = Image.open(TEST_IMG_8BPP)
+            nclr = conv.get_img_palette(im)
+            with tempfile.TemporaryDirectory() as tdir:
+                conv.nclr_to_jasc(nclr, tdir+"pal")
+                nclr2 = conv.jasc_to_nclr(tdir+"pal")
+            self.assertEqual(nclr, nclr2)

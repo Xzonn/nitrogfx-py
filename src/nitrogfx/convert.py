@@ -20,6 +20,40 @@ def get_img_palette(img):
         nclr.colors = colors
         return nclr
 
+def png_to_nclr(png_path):
+    """Converts the color table of an indexed PNG into an NCLR
+    :param png_path: path to indexed PNG
+    :return: NCLR object
+    """
+    return get_img_palette(Image.open(png_path))
+
+
+def nclr_to_jasc(nclr, jasc_path):
+    """Converts NCLR into a JASC-palette file
+    :param nclr: NCLR
+    :param jasc_path: path to produced palette file
+    """
+    with open(jasc_path, "w") as pal:
+        pal.write(f"JASC-PAL\n0100\n{len(nclr.colors)}\n")
+        for c in nclr.colors:
+            pal.write(f"{c[0]} {c[1]} {c[2]}\n")
+
+
+def jasc_to_nclr(jasc_path):
+    """Converts JASC-palette file to NCLR
+    :param jasc_path: path to JASC palette file
+    :return: NCLR
+    """
+    def line_to_color(line):
+        parts = line.split(' ')
+        return (int(parts[0]), int(parts[1]), int(parts[2]))
+    nclr = NCLR()
+    with open(jasc_path) as pal:
+        lines = pal.readlines()
+        assert lines[0] == "JASC-PAL\n"
+        nclr.colors = [line_to_color(line) for line in lines[3:]]
+    return nclr
+        
 
 def get_tile_data(img, x, y):
     """Reads an 8x8 tile from an Indexed Pillow Image.
