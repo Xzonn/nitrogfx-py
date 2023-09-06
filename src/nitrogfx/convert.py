@@ -7,7 +7,7 @@ from nitrogfx.nanr import NANR, Sequence, SeqMode, SeqType
 from PIL import Image
 
 
-def get_img_palette(img):
+def img_to_nclr(img):
         """Creates NCLR palette from the color table of an indexed Image
         :param img: Indexed Pillow Image
         :return: NCLR object
@@ -25,7 +25,7 @@ def png_to_nclr(png_path):
     :param png_path: path to indexed PNG
     :return: NCLR object
     """
-    return get_img_palette(Image.open(png_path))
+    return img_to_nclr(Image.open(png_path))
 
 
 def nclr_to_jasc(nclr, jasc_path):
@@ -64,7 +64,7 @@ def img_to_nscr(img, bpp=8, use_flipping=True):
         :param use_flipping: Flip tiles to reduce size of the tileset, at the cost of performance.
         :return: tuple of (NCGR, NSCR, NCLR)
         """
-        nclr = get_img_palette(img)
+        nclr = img_to_nclr(img)
         nclr.bpp = bpp
         
         ncgr = NCGR()
@@ -86,7 +86,7 @@ def img_to_nscr(img, bpp=8, use_flipping=True):
         ncgr.height = len(ncgr.tiles)
         return (ncgr, nscr, nclr)
 
-def png_to_tilemap(png_name : str, bpp=8, use_flipping=True):
+def png_to_nscr(png_name : str, bpp=8, use_flipping=True):
     """Creates a NCGR tileset, NSCR tilemap and NCLR palette from an indexed PNG.    
     :param png_name: Path to indexed PNG
     :param bpp: bits-per-pixel (4 for 16 colors, 8 for 256 colors)

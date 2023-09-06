@@ -16,7 +16,7 @@ class ConvertTest(unittest.TestCase):
     
         def test_palette_read(self):
                 im = Image.open(TEST_IMG_8BPP)
-                nclr = conv.get_img_palette(im)
+                nclr = conv.img_to_nclr(im)
                 self.assertEqual(len(nclr.colors), 256)
                 self.assertEqual(nclr.colors[1], (255, 0, 0))
 
@@ -67,7 +67,7 @@ class ConvertTest(unittest.TestCase):
 
         def test_nclr_jasc_conversion(self):
             im = Image.open(TEST_IMG_8BPP)
-            nclr = conv.get_img_palette(im)
+            nclr = conv.img_to_nclr(im)
             with tempfile.TemporaryDirectory() as tdir:
                 conv.nclr_to_jasc(nclr, tdir+"pal")
                 nclr2 = conv.jasc_to_nclr(tdir+"pal")
