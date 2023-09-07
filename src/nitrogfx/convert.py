@@ -1,4 +1,4 @@
-from nitrogfx.ncgr import NCGR, flip_tile
+from nitrogfx.ncgr import NCGR, Tile
 from nitrogfx.nscr import NSCR, MapEntry
 from nitrogfx.nclr import NCLR
 from nitrogfx.ncer import NCER, Cell, OAM
@@ -68,7 +68,7 @@ def img_to_nscr(img, bpp=8, use_flipping=True):
         nclr.bpp = bpp
         
         ncgr = NCGR()
-        ncgr.tiles.append([0 for i in range(64)])
+        ncgr.tiles.append(Tile([0 for i in range(64)]))
         ncgr.bpp = bpp
 
         tiles = ncgr.tiles

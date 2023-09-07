@@ -101,16 +101,17 @@ def draw_tile(pixels, ncgr, map_entry, x, y):
     :param x: X-coordinate at which the tile is drawn in the image.
     :param y: Y-coordinate at which the tile is drawn in the image.
     """
-    tiledata = nitrogfx.ncgr.flip_tile(ncgr.tiles[map_entry.tile], map_entry.xflip, map_entry.yflip)
+    tile = ncgr.tiles[map_entry.tile].flipped(map_entry.xflip, map_entry.yflip)
     for y2 in range(8):
         for x2 in range(8):
-            pixels[x+x2, y+y2] = tiledata[8*y2 + x2]
+            pixels[x+x2, y+y2] = tile.get_pixel(x2, y2)
 
 def get_tile_data(pixels, x, y):
     """Reads an 8x8 tile from an Indexed Pillow Image.
     :param pixels: Indexed Pillow Image pixels obtained with Image.load()
     :param x: X-coordinate of top left corner of the tile
     :param y: Y-coordinate of top left corner of the tile
-    :return: a tile (list of 64 ints)
+    :return: Tile object
     """
-    return [pixels[(x+j, y+i)] for i in range(8) for j in range(8)]
+    data = [pixels[(x+j, y+i)] for i in range(8) for j in range(8)]
+    return nitrogfx.ncgr.Tile(data)

@@ -3,6 +3,34 @@ import nitrogfx.util as util
 from nitrogfx.nscr import MapEntry
 
 
+class Tile:
+    def __init__(self, pixel_list):
+        self.pixels = pixel_list
+
+    def get_pixel(self, x, y):
+        return self.pixels[x + y*8]
+
+    def get_data(self):
+        return self.pixels
+
+    def flipped(self, xflip, yflip):
+        """Flips a tile horizontally and/or vertically
+        :param xflip: flip horizontally?
+        :param yflip: flip vertically?
+        :return: flipped tile
+        """
+        if xflip and yflip:
+            return Tile([self.get_pixel(x,y) for y in range(7,-1,-1) for x in range(7,-1,-1)])
+        elif yflip:
+            return Tile([self.get_pixel(x,y) for y in range(7,-1,-1) for x in range(8)])
+        elif xflip:
+            return Tile([self.get_pixel(x,y) for y in range(8) for x in range(7,-1,-1)])
+        return self
+    
+    def __eq__(self, other):
+        return self.pixels == other.pixels
+
+
 class NCGR():
     "Class for representing NCGR and NCBR tilesets"
     def __init__(self, bpp=4):
@@ -24,6 +52,7 @@ class NCGR():
             
 
     def __pack_tile(self, tile):
+        tile = tile.get_data()
         if self.bpp == 4:
             return bytes([tile[i] | (tile[i+1] << 4) for i in range(0, len(tile), 2)])
         return bytes(tile)
@@ -62,7 +91,7 @@ class NCGR():
                 ty = y // 8
                 sx = x & 7
                 sy = y & 7
-                data.append(self.tiles[ty*self.width+tx][8*sy+sx])
+                data.append(self.tiles[ty*self.width+tx].get_pixel(sx, sy))
         if self.bpp == 4:
             return bytes([data[i] | (data[i+1]<<4) for i in range(0,len(data),2)])
         return bytes(data)
@@ -84,18 +113,18 @@ class NCGR():
                     result.append(value >> 4)
                 offset += 4*self.width
 
-        return result
+        return Tile(result)
 
     def __unpack_tile(self, data, tilenum):
         if self.ncbr:
             return self.__unpack_ncbr_tile(data, tilenum)
         if self.bpp == 8:
-            return list(data[tilenum*0x40:tilenum*0x40 + 0x40])
+            return Tile(list(data[tilenum*0x40:tilenum*0x40 + 0x40]))
         result = []
         for x in data[tilenum*0x20: tilenum*0x20 + 0x20]:
             result.append(x & 0xF)
             result.append(x >> 4)
-        return result
+        return Tile(result)
 
     def unpack(data):
         """Unpack NCGR from bytes
@@ -160,28 +189,13 @@ class NCGR():
 
 
 
-def flip_tile(tile, xflip : bool, yflip : bool):
-    """Flips a tile horizontally and/or vertically
-    :param tile: a tile
-    :param xflip: flip horizontally?
-    :param yflip: flip vertically?
-    :return: flipped tile
-    """
-    if xflip and yflip:
-        return [tile[8*y+x] for y in range(7,-1,-1) for x in range(7,-1,-1)]
-    elif yflip:
-        return [tile[8*y+x] for y in range(7,-1,-1) for x in range(8)]
-    elif xflip:
-        return [tile[8*y+x] for y in range(8) for x in range(7,-1,-1)]
-    return tile
-
 def compare_flipped_tile(tile1, tile2, xflip, yflip):
     "Returns (tile2 == flip_tile(tile1, xflip, yflip)) but faster"
     for y in range(8):
         for x in range(8):
             y2 = 7-y if yflip else y
             x2 = 7-x if xflip else x
-            if tile2[8*y+x] != tile1[8*y2+x2]:
+            if tile2.get_pixel(x,y) != tile1.get_pixel(x2, y2):
                 return False
     return True
 
