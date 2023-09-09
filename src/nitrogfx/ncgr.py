@@ -4,8 +4,11 @@ from nitrogfx.nscr import MapEntry
 
 
 class Tile:
-    def __init__(self, pixel_list):
-        self.pixels = pixel_list
+    def __init__(self, pixels):
+        ":param pixels: can either be a 64-int list or 8bpp bytes"
+        if isinstance(pixels, list):
+            pixels = bytes(pixels)
+        self.pixels = pixels
 
     def get_pixel(self, x, y):
         return self.pixels[x + y*8]
@@ -55,7 +58,7 @@ class NCGR():
         tile = tile.get_data()
         if self.bpp == 4:
             return bytes([tile[i] | (tile[i+1] << 4) for i in range(0, len(tile), 2)])
-        return bytes(tile)
+        return tile
 
     def pack(self):
         """Pack NCGR into bytes
@@ -99,18 +102,17 @@ class NCGR():
 
     def __unpack_ncbr_tile(self, data, tilenum):
         x,y = (tilenum % self.width, tilenum // self.width)
-        result = []
+        result = b""
         offset = x * 4 + 4*y*self.width*8
         if self.bpp == 8:
             for i in range(8):
                 for j in range(8):
-                    result.append(int(data[2*offset+i*self.width+j]))
+                    result += data[2*offset+i*self.width+j]
         else:
             for j in range(8):
                 for i in range(4):
                     value = data[offset+i]
-                    result.append(value & 0xf)
-                    result.append(value >> 4)
+                    result += struct.pack("BB",value & 0xf, value >> 4)
                 offset += 4*self.width
 
         return Tile(result)
@@ -119,7 +121,7 @@ class NCGR():
         if self.ncbr:
             return self.__unpack_ncbr_tile(data, tilenum)
         if self.bpp == 8:
-            return Tile(list(data[tilenum*0x40:tilenum*0x40 + 0x40]))
+            return Tile(data[tilenum*0x40:tilenum*0x40 + 0x40])
         result = []
         for x in data[tilenum*0x20: tilenum*0x20 + 0x20]:
             result.append(x & 0xF)
