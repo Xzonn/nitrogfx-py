@@ -115,3 +115,79 @@ def get_tile_data(pixels, x, y):
     """
     data = [pixels[(x+j, y+i)] for i in range(8) for j in range(8)]
     return nitrogfx.ncgr.Tile(data)
+
+
+class TilesetBuilder:
+    "Class for building NCGR tilesets without repeating tiles. **Currently only works with 8bpp tiles**."
+
+    def __init__(self):
+        self.__tiles = [] # list of added tiles
+        self.__indices = {} # indices of tiles accessed by TileHash
+
+    def add(self, tile):
+        """Adds a tile to tileset if it isn't already there
+        :param tile: Tile object to add
+        """
+        self.get_map_entry(tile)
+
+    def get_map_entry(self, tile):
+        """Get a MapEntry corresponding to a tile in the tileset.
+        The tile is added to the tileset if it isn't already.
+        :param tile: Tile object
+        :return: MapEntry
+        """
+        hashed = TileHash(tile)
+        if hashed not in self.__indices.keys():
+            idx = len(self.__tiles)
+            self.__indices[hashed] = idx
+            self.__tiles.append(tile)
+        (hflip, vflip) = hashed.get_flipping(tile)
+        return nitrogfx.nscr.MapEntry(self.__indices[hashed], 0, hflip, vflip)
+
+    def get_tiles(self):
+        ":return: list of Tile objects"
+        return self.__tiles
+
+    def as_ncgr(self, bpp):
+        """Produces an NCGR out of the added tiles
+        :returns: NCGR"""
+        ncgr = nitrogfx.ncgr.NCGR(bpp)
+        ncgr.tiles = self.__tiles
+        ncgr.width = 1
+        ncgr.height = len(ncgr.tiles)
+        return ncgr 
+
+
+class TileHash:
+    """Hashable wrapper for Tile objects.
+    The hashes are equal for tiles that are flipped copies of each other.
+
+    Used by TilesetBuilder to quickly find if a tile is already in the tileset,
+    and how the hashed tile needs to be flipped to produce the other tile.
+    """
+    def __init__(self, tile):
+        self.__unflipped = tile.get_data()
+        self.__hflipped = tile.flipped(True, False).get_data()
+        self.__vflipped = tile.flipped(False, True).get_data()
+        self.__hvflipped = tile.flipped(True, True).get_data()
+        self.__hash = hash(self.__unflipped) * hash(self.__hflipped) * hash(self.__vflipped) * hash(self.__hvflipped)
+
+    def get_flipping(self, tile):
+        ":return: (hflip, vflip) boolean tuple"
+        pixels = tile.get_data()
+        if pixels == self.__unflipped:
+            return (False, False)
+        if pixels == self.__hflipped:
+            return (True, False)
+        if pixels == self.__vflipped:
+            return (False, True)
+        if pixels == self.__hvflipped:
+            return (True, True)
+        
+    def __hash__(self):
+        return self.__hash
+
+    def __eq__(self, other):
+        return self.__hash == other.__hash
+
+

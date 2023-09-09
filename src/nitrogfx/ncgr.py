@@ -29,7 +29,7 @@ class Tile:
         elif xflip:
             return Tile([self.get_pixel(x,y) for y in range(8) for x in range(7,-1,-1)])
         return self
-    
+
     def __eq__(self, other):
         return self.pixels == other.pixels
 
@@ -148,27 +148,6 @@ class NCGR():
         return self
 
 
-    def find_tile(self, tile, flipping=True):
-        """
-        Return tilemap entry of a tile in the tileset, or None if tile is not in tileset
-        :param tile: a tile (list of length 64)
-        :param flipping: whether to consider flipped tiles.
-        :return: MapEntry or None
-        """
-        for (idx,t) in enumerate(self.tiles):
-            if t == tile:
-                return MapEntry(idx, 0, False, False)
-            if not flipping:
-                return None
-            if compare_flipped_tile(tile, t, False, True):
-                return MapEntry(idx, 0, False, True)
-            if compare_flipped_tile(tile, t, True, False):
-                return MapEntry(idx, 0, True, False)
-            if compare_flipped_tile(tile, t, True, True):
-                return MapEntry(idx, 0, True, True)
-        return None
-
-
     def save_as(self, filepath : str):
         """Save NCGR as file
         :param filepath: path to file"""
@@ -188,16 +167,4 @@ class NCGR():
 
     def __repr__(self):
         return f"<{self.bpp}bpp ncgr with {len(self.tiles)} tiles>"
-
-
-
-def compare_flipped_tile(tile1, tile2, xflip, yflip):
-    "Returns (tile2 == flip_tile(tile1, xflip, yflip)) but faster"
-    for y in range(8):
-        for x in range(8):
-            y2 = 7-y if yflip else y
-            x2 = 7-x if xflip else x
-            if tile2.get_pixel(x,y) != tile1.get_pixel(x2, y2):
-                return False
-    return True
 

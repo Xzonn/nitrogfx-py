@@ -2,7 +2,7 @@ from nitrogfx.ncgr import NCGR, Tile
 from nitrogfx.nscr import NSCR, MapEntry
 from nitrogfx.nclr import NCLR
 from nitrogfx.ncer import NCER, Cell, OAM
-from nitrogfx.util import draw_tile, json_dump, json_load, get_tile_data
+from nitrogfx.util import draw_tile, json_dump, json_load, get_tile_data, TilesetBuilder
 from nitrogfx.nanr import NANR, Sequence, SeqMode, SeqType
 from PIL import Image
 
@@ -65,26 +65,20 @@ def img_to_nscr(img, bpp=8, use_flipping=True):
         :return: tuple of (NCGR, NSCR, NCLR)
         """
         nclr = img_to_nclr(img)
+        assert bpp == 8, "TODO: img_to_nscr 4bpp support"
         nclr.bpp = bpp
-        
-        ncgr = NCGR()
-        ncgr.tiles.append(Tile([0 for i in range(64)]))
-        ncgr.bpp = bpp
 
-        tiles = ncgr.tiles
+        tileset = TilesetBuilder()
+        tileset.add(Tile([0 for i in range(64)]))
+
         nscr = NSCR(img.width, img.height, bpp==8)
         img_pixels = img.load()
         for y in range(0, img.height, 8):
                 for x in range(0, img.width, 8):
                         tile = get_tile_data(img_pixels, x, y)
-                        map_entry = ncgr.find_tile(tile, use_flipping)
-                        if map_entry == None:
-                                map_entry = MapEntry(len(tiles))
-                                tiles.append(tile)
-                        nscr.set_entry(x//8, y//8, map_entry)
-        ncgr.width = 1
-        ncgr.height = len(ncgr.tiles)
-        return (ncgr, nscr, nclr)
+                        nscr.set_entry(x//8, y//8, tileset.get_map_entry(tile))
+
+        return (tileset.as_ncgr(bpp), nscr, nclr)
 
 def png_to_nscr(png_name : str, bpp=8, use_flipping=True):
     """Creates a NCGR tileset, NSCR tilemap and NCLR palette from an indexed PNG.    
