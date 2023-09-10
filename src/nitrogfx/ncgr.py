@@ -22,13 +22,7 @@ class Tile:
         :param yflip: flip vertically?
         :return: flipped tile
         """
-        if xflip and yflip:
-            return Tile([self.get_pixel(x,y) for y in range(7,-1,-1) for x in range(7,-1,-1)])
-        elif yflip:
-            return Tile([self.get_pixel(x,y) for y in range(7,-1,-1) for x in range(8)])
-        elif xflip:
-            return Tile([self.get_pixel(x,y) for y in range(8) for x in range(7,-1,-1)])
-        return self
+        return Tile(c_ext.flip_tile_data(self.pixels, xflip, yflip))
 
     def __eq__(self, other):
         return self.pixels == other.pixels

@@ -49,6 +49,29 @@ static PyObject* _8bpp_to_4bpp(PyObject *self, PyObject *args){
 }
 
 
+// flip_tile_data(input : bytes, hflip : bool, vflip : bool) -> bytes
+static PyObject* flip_tile_data(PyObject *self, PyObject *args){
+	const unsigned char* input;
+	Py_ssize_t input_len;
+	int hflip, vflip;
+
+	if(!PyArg_ParseTuple(args, "y#pp", &input, &input_len, &hflip, &vflip))
+		return NULL;
+	
+	ASSERT(input_len == 64, "Tiles must be 64 bytes long.");
+
+	char* output = PyMem_Malloc(64);
+	for(int y = 0; y<8;y++){
+		for(int x = 0; x<8;x++){
+			int x2 = hflip ? 7-x : x;
+			int y2 = vflip ? 7-y : y;
+			output[8*y2+x2] = input[8*y+x];
+		}
+	}
+	return PyBytes_FromStringAndSize(output, 64);
+}
+
+
 // read_ncbr_tile(data : bytes, tilenum : int, bpp : int, width : int) -> bytes
 static PyObject* read_ncbr_tile(PyObject *self, PyObject *args){
 	const unsigned char* data;
@@ -131,6 +154,7 @@ static PyObject* pack_ncbr_tiles(PyObject *self, PyObject *args){
 static PyMethodDef tileMethods[] = {
     {"_4bpp_to_8bpp", (PyCFunction)_4bpp_to_8bpp, METH_VARARGS, "Convert 4bpp bytes to 8bpp"},
     {"_8bpp_to_4bpp", (PyCFunction)_8bpp_to_4bpp, METH_VARARGS, "Convert 8bpp bytes to 4bpp"},
+    {"flip_tile_data", (PyCFunction)flip_tile_data, METH_VARARGS, "Flip a tile"},
     {"read_ncbr_tile", (PyCFunction)read_ncbr_tile, METH_VARARGS, "Read a tile from ncbr"},
     {"pack_ncbr_tiles", (PyCFunction)pack_ncbr_tiles, METH_VARARGS, "Pack list of bytes into ncbr"},
     {NULL, NULL, 0, NULL}
