@@ -1,7 +1,7 @@
 import struct
 import nitrogfx.util as util
 from nitrogfx.nscr import MapEntry
-
+import nitrogfx.c_ext.tile as c_ext
 
 class Tile:
     def __init__(self, pixels):
@@ -57,7 +57,7 @@ class NCGR():
     def __pack_tile(self, tile):
         tile = tile.get_data()
         if self.bpp == 4:
-            return bytes([tile[i] | (tile[i+1] << 4) for i in range(0, len(tile), 2)])
+            return c_ext._8bpp_to_4bpp(tile)
         return tile
 
     def pack(self):
@@ -86,47 +86,21 @@ class NCGR():
         return header+header2+tiledata+sopc
 
 
+
     def __pack_ncbr(self):
-        data = []
-        for y in range(self.height*8):
-            for x in range(self.width*8):
-                tx = x // 8
-                ty = y // 8
-                sx = x & 7
-                sy = y & 7
-                data.append(self.tiles[ty*self.width+tx].get_pixel(sx, sy))
+        tile_pixels = list(map(lambda t:t.get_data(), self.tiles))
+        data = c_ext.pack_ncbr_tiles(tile_pixels, self.width, self.height)
         if self.bpp == 4:
-            return bytes([data[i] | (data[i+1]<<4) for i in range(0,len(data),2)])
-        return bytes(data)
+           return c_ext._8bpp_to_4bpp(data)
+        return data
 
-
-    def __unpack_ncbr_tile(self, data, tilenum):
-        x,y = (tilenum % self.width, tilenum // self.width)
-        result = b""
-        offset = x * 4 + 4*y*self.width*8
-        if self.bpp == 8:
-            for i in range(8):
-                for j in range(8):
-                    result += data[2*offset+i*self.width+j]
-        else:
-            for j in range(8):
-                for i in range(4):
-                    value = data[offset+i]
-                    result += struct.pack("BB",value & 0xf, value >> 4)
-                offset += 4*self.width
-
-        return Tile(result)
 
     def __unpack_tile(self, data, tilenum):
         if self.ncbr:
-            return self.__unpack_ncbr_tile(data, tilenum)
+            return Tile(c_ext.read_ncbr_tile(data, tilenum, self.bpp, self.width))
         if self.bpp == 8:
             return Tile(data[tilenum*0x40:tilenum*0x40 + 0x40])
-        result = []
-        for x in data[tilenum*0x20: tilenum*0x20 + 0x20]:
-            result.append(x & 0xF)
-            result.append(x >> 4)
-        return Tile(result)
+        return Tile(c_ext._4bpp_to_8bpp(data[tilenum*0x20: tilenum*0x20 + 0x20]))
 
     def unpack(data):
         """Unpack NCGR from bytes

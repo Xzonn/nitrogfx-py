@@ -1,6 +1,10 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "nitrogfx-py"
-version = "0.2.0"
+version = "1.0.0"
 keywords = ["NDS", "Nintendo DS", "NCGR", "NCLR", "NSCR", "NCER", "NANR"]
 authors = [
   { name="Fexean", email="3699814-Fexean@users.noreply.gitlab.com" },

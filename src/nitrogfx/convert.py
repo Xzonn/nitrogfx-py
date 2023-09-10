@@ -58,14 +58,14 @@ def jasc_to_nclr(jasc_path):
 
 def img_to_nscr(img, bpp=8, use_flipping=True):
         """Creates a NCGR tileset, NSCR tilemap and NCLR palette from an indexed Pillow Image.
-        
+        4bpp images are currently not handled properly.
+
         :param img: indexed Pillow Image
         :param bpp: bits-per-pixel (4 for 16 colors, 8 for 256 colors)
         :param use_flipping: Flip tiles to reduce size of the tileset, at the cost of performance.
         :return: tuple of (NCGR, NSCR, NCLR)
         """
         nclr = img_to_nclr(img)
-        assert bpp == 8, "TODO: img_to_nscr 4bpp support"
         nclr.bpp = bpp
 
         tileset = TilesetBuilder()
