@@ -7,6 +7,7 @@ stages:
 
 
 before_script:
+  - apt update && apt install -y gcc
   - pip install .
   - pip install pdoc pytest
 
