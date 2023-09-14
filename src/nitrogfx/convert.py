@@ -2,7 +2,7 @@ from nitrogfx.ncgr import NCGR, Tile
 from nitrogfx.nscr import NSCR, MapEntry
 from nitrogfx.nclr import NCLR
 from nitrogfx.ncer import NCER, Cell, OAM
-from nitrogfx.util import draw_tile, json_dump, json_load, get_tile_data, TilesetBuilder
+from nitrogfx.util import json_dump, json_load, get_tile_data, TilesetBuilder, TileCanvas
 from nitrogfx.nanr import NANR, Sequence, SeqMode, SeqType
 from PIL import Image
 
@@ -104,24 +104,18 @@ def nclr_to_imgpal(nclr):
     return result
 
 
-
-
 def ncgr_to_img(ncgr, nclr=NCLR.get_monochrome_nclr()):
     """Create an Image from NCGR tileset and NCLR palette.
     :param ncgr: NCGR object
     :param nclr: NCLR object
     :return: Pillow Image
     """
-    w = ncgr.width
-    h = ncgr.height
-    img = Image.new("P", (8*w, 8*h), (0,0,0,0))
-    pixels = img.load()
-    for y in range(h):
-        for x in range(w):
-            entry = MapEntry(y*w+x)
-            draw_tile(pixels, ncgr, entry, x*8, y*8)
-    img.putpalette(nclr_to_imgpal(nclr))
-    return img
+    canvas = TileCanvas(ncgr.width*8, ncgr.height*8)
+    for y in range(ncgr.height):
+        for x in range(ncgr.width):
+            entry = MapEntry(y*ncgr.width+x)
+            canvas.draw_tile(ncgr, entry, x*8, y*8)
+    return canvas.as_img(nclr)
 
 def ncgr_to_png(ncgr, img_name, nclr=NCLR.get_monochrome_nclr()):
     """Runs ncgr_to_img on a PNG file
@@ -163,14 +157,12 @@ def nscr_to_img(ncgr, nscr, nclr=NCLR.get_monochrome_nclr()):
     :param nclr: NCLR palette
     :return: Pillow Image
     """
-    img = Image.new("P", (nscr.width, nscr.height), (0,0,0,0))
-    pixels = img.load()
+    canvas = TileCanvas(nscr.width, nscr.height)
     for y in range(nscr.height // 8):
         for x in range(nscr.width // 8):
             entry = nscr.get_entry(x, y)
-            draw_tile(pixels, ncgr, entry, x*8, y*8)
-    img.putpalette(nclr_to_imgpal(nclr))
-    return img
+            canvas.draw_tile(ncgr, entry, x*8, y*8)
+    return canvas.as_img(nclr)
 
 def nscr_to_png(img_name, ncgr, nscr, nclr=NCLR.get_monochrome_nclr()):
     """Stores result of nscr_to_img in a png file

@@ -1,5 +1,7 @@
 import struct
 import nitrogfx
+from PIL import Image
+import nitrogfx.c_ext.tile as c_ext
 
 try:
     # orjson is an optional dependency which significantly improves json performance
@@ -93,18 +95,6 @@ def pack_txeu(texu:int):
     """
     return bytes([0x54, 0x58, 0x45, 0x55, 0x0C, 0x00, 0x00, 0x00, texu, 0x00, 0x00, 0x00])
 
-def draw_tile(pixels, ncgr, map_entry, x, y):
-    """Draws a tile on an Indexed Pillow Image.
-    :param pixels: Pillow Image pixels obtained with Image.load()
-    :param ncgr: NCGR tileset
-    :param map_entry: tilemap MapEntry object used for the tile.
-    :param x: X-coordinate at which the tile is drawn in the image.
-    :param y: Y-coordinate at which the tile is drawn in the image.
-    """
-    tile = ncgr.tiles[map_entry.tile].flipped(map_entry.xflip, map_entry.yflip)
-    for y2 in range(8):
-        for x2 in range(8):
-            pixels[x+x2, y+y2] = tile.get_pixel(x2, y2)
 
 def get_tile_data(pixels, x, y):
     """Reads an 8x8 tile from an Indexed Pillow Image.
@@ -191,3 +181,26 @@ class TileHash:
         return self.__hash == other.__hash
 
 
+
+class TileCanvas:
+    def __init__(self, width, height):
+        self.w = width
+        self.h = height
+        self.data = bytearray(width*height)
+
+    def draw_tile(self, ncgr, map_entry, x, y):
+        """Draws a tile on an Indexed Pillow Image.
+        :param pixels: Pillow Image pixels obtained with Image.load()
+        :param ncgr: NCGR tileset
+        :param map_entry: tilemap MapEntry object used for the tile.
+        :param x: X-coordinate at which the tile is drawn in the image.
+        :param y: Y-coordinate at which the tile is drawn in the image.
+        """
+        tile = ncgr.tiles[map_entry.tile].flipped(map_entry.xflip, map_entry.yflip)
+        c_ext.draw_tile_to_buffer(self.data, tile.get_data(), x, y, self.w)
+    
+    def as_img(self, nclr):
+        img = Image.frombytes("P", (self.w, self.h), bytes(self.data))
+        pal = nitrogfx.convert.nclr_to_imgpal(nclr)
+        img.putpalette(pal)
+        return img

@@ -118,6 +118,7 @@ static void plot_tile(char* dst, int x, int y, char* tile, int width){
 	}
 }
 
+// pack_ncbr_tiles(tiles : list of bytes, width : int, height : int)
 static PyObject* pack_ncbr_tiles(PyObject *self, PyObject *args){
 	PyObject* tiles;
 	unsigned int width, height;
@@ -151,12 +152,30 @@ static PyObject* pack_ncbr_tiles(PyObject *self, PyObject *args){
 }
 
 
+// draw_tile_to_buffer(bytearray, tile : bytes, x : int, y : int, buffer_width : int)
+static PyObject* draw_tile_to_buffer(PyObject *self, PyObject *args){
+	PyObject* bytearray;
+	char *buffer, *tile;
+	unsigned int width, x, y;
+	Py_ssize_t tile_size;
+	
+	if(!PyArg_ParseTuple(args, "Yy#III", &bytearray, &tile, &tile_size, &x, &y, &width))
+		return NULL;
+	ASSERT(tile_size == 64, "Tile is not 64 bytes");
+	ASSERT((y+7)*width + (x+8) <= PyByteArray_Size(bytearray), "Buffer is too small");
+	buffer = PyByteArray_AS_STRING(bytearray);
+	plot_tile(buffer, x, y, tile, width);
+	Py_RETURN_NONE;
+}
+
+
 static PyMethodDef tileMethods[] = {
     {"_4bpp_to_8bpp", (PyCFunction)_4bpp_to_8bpp, METH_VARARGS, "Convert 4bpp bytes to 8bpp"},
     {"_8bpp_to_4bpp", (PyCFunction)_8bpp_to_4bpp, METH_VARARGS, "Convert 8bpp bytes to 4bpp"},
     {"flip_tile_data", (PyCFunction)flip_tile_data, METH_VARARGS, "Flip a tile"},
     {"read_ncbr_tile", (PyCFunction)read_ncbr_tile, METH_VARARGS, "Read a tile from ncbr"},
     {"pack_ncbr_tiles", (PyCFunction)pack_ncbr_tiles, METH_VARARGS, "Pack list of bytes into ncbr"},
+    {"draw_tile_to_buffer", (PyCFunction)draw_tile_to_buffer, METH_VARARGS, "Blit a tile to a bytearray"},
     {NULL, NULL, 0, NULL}
 };
 
