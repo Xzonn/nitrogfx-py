@@ -28,3 +28,9 @@ The code is documented with docstrings.
 
 You can view them online at: https://fexean.gitlab.io/ntrgfx-py
 
+## Dependencies
+
+The project requires Pillow 7.0.0. You also need to have a C compiler installed on your system to be able to compile the project's C extensions.
+
+It also has an optional dependency on orjson. If installed, the json conversion functions will run much faster.
+

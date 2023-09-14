@@ -7,7 +7,6 @@ stages:
 
 
 before_script:
-  - apt update && apt install -y gcc
   - pip install .
   - pip install pdoc pytest
 
@@ -35,7 +34,7 @@ upload-to-pypi:
   stage : deploy
   script:
     - pip install build twine
-    - python3 -m build
+    - python3 -m build --sdist
     - twine upload dist/* --username __token__ --password $PYPI_TOKEN
   rules:
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
