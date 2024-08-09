@@ -30,7 +30,7 @@ class NCER:
         ncer = NCER()
         if data[0:4] != b"RECN":
             raise Exception("Data doesn't start with NCER header.")
-        cell_size, cell_cnt, extended, c, mapping = struct.unpack("<IHHII", data[0x14:0x24])
+        cell_size, cell_cnt, extended, c, mapping, partition_data_offset = struct.unpack("<IHHIII", data[0x14:0x28])
         ncer.mapping_type = mapping
         ncer.extended = extended == 1
         
@@ -40,13 +40,22 @@ class NCER:
             c = Cell()
             start = 0x30+cell_len*i
             if ncer.extended:
-                n, c.readOnly, p, c.max_x, c.max_y, c.min_x, c.min_y = struct.unpack("<HHIHHHH", data[start:start+0x10])
+                n, c.readOnly, p, c.max_x, c.max_y, c.min_x, c.min_y = struct.unpack("<HHIhhhh", data[start:start+0x10])
             else:
                 n, c.readOnly, p = struct.unpack("<HHI", data[start:start+8])
             for j in range(n):
                 oam_ptr = oam_start + p + 6*j
                 c.oam.append(OAM.unpack(data[oam_ptr:oam_ptr+6]))
             ncer.cells.append(c)
+        
+        if partition_data_offset > 0:
+            pos = 0x18 + partition_data_offset
+            max_partition_size, first_partition_data_offset = struct.unpack("<II", data[pos:pos+8])
+            pos += first_partition_data_offset
+            for i in range(cell_cnt):
+                cell = ncer.cells[i]
+                cell.partition_offset, cell.partition_size = struct.unpack("<II", data[pos:pos+8])
+                pos += 8
 
         if data[0xe] == 3: # has labels sections
             labl_start = 0x10 + cell_size
@@ -88,7 +97,7 @@ class NCER:
         oam_ptr = 0
         for i,cell in enumerate(self.cells):
             if self.extended:
-                celldata += struct.pack("<HHIHHHH", len(cell.oam), cell.readOnly, oam_ptr, cell.max_x, cell.max_y, cell.min_x, cell.min_y)
+                celldata += struct.pack("<HHIhhhh", len(cell.oam), cell.readOnly, oam_ptr, cell.max_x, cell.max_y, cell.min_x, cell.min_y)
             else:
                 celldata += struct.pack("<HHI", len(cell.oam), cell.readOnly, oam_ptr)
             for oam in cell.oam:
@@ -139,6 +148,8 @@ class Cell:
         self.min_x = 0
         self.min_y = 0
         self.max_y = 0
+        self.partition_offset = 0
+        self.partition_size = 0
 
 
     def __eq__(self, other):
