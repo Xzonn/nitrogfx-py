@@ -131,6 +131,8 @@ class TilesetBuilder:
             idx = len(self.__tiles)
             self.__indices[hashed] = idx
             self.__tiles.append(tile)
+        else:
+            hashed = TileHash(self.__tiles[self.__indices[hashed]])
         (hflip, vflip) = hashed.get_flipping(tile)
         return nitrogfx.nscr.MapEntry(self.__indices[hashed], 0, hflip, vflip)
 
