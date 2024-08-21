@@ -39,4 +39,3 @@ upload-to-pypi:
     - twine upload dist/* --username __token__ --password $PYPI_TOKEN
   rules:
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
-

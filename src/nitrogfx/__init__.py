@@ -10,4 +10,3 @@ Currently supports:
 - NCER sprite data
 - NANR animation data
 """
-

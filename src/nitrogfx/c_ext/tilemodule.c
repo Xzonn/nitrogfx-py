@@ -15,17 +15,17 @@
 static PyObject* _4bpp_to_8bpp(PyObject *self, PyObject *args){
 	const unsigned char* input;
 	Py_ssize_t input_len;
-	
+
 	if(!PyArg_ParseTuple(args, "y#", &input, &input_len))
 		return NULL;
-	
+
 	char* output = PyMem_Malloc(2*input_len);
 	int j = 0;
 	for(int i = 0;i<input_len;i++){
 		output[j++] = input[i] & 0xF;
 		output[j++] = input[i] >> 4;
 	}
-	
+
 	return PyBytes_FromStringAndSize(output, 2*input_len);
 }
 
@@ -34,17 +34,17 @@ static PyObject* _4bpp_to_8bpp(PyObject *self, PyObject *args){
 static PyObject* _8bpp_to_4bpp(PyObject *self, PyObject *args){
 	const unsigned char* input;
 	Py_ssize_t input_len;
-	
+
 	if(!PyArg_ParseTuple(args, "y#", &input, &input_len))
 		return NULL;
-	
+
 	char* output = PyMem_Malloc(input_len / 2);
 	int j = 0;
 	for(int i = 0;i<input_len/2;i++){
 		output[i] = (input[j] & 0xF) | (input[j+1] << 4);
 		j += 2;
 	}
-	
+
 	return PyBytes_FromStringAndSize(output, input_len / 2);
 }
 
@@ -57,7 +57,7 @@ static PyObject* flip_tile_data(PyObject *self, PyObject *args){
 
 	if(!PyArg_ParseTuple(args, "y#pp", &input, &input_len, &hflip, &vflip))
 		return NULL;
-	
+
 	ASSERT(input_len == 64, "Tiles must be 64 bytes long.");
 
 	char* output = PyMem_Malloc(64);
@@ -77,10 +77,10 @@ static PyObject* read_ncbr_tile(PyObject *self, PyObject *args){
 	const unsigned char* data;
 	Py_ssize_t data_len;
 	unsigned int tilenum, bpp, width;
-	
+
 	if(!PyArg_ParseTuple(args, "y#III", &data, &data_len, &tilenum, &bpp, &width))
 		return NULL;
-	
+
 	int x = tilenum % width;
 	int y = tilenum / width;
 	int k = 0;
@@ -122,7 +122,7 @@ static void plot_tile(char* dst, int x, int y, char* tile, int width){
 static PyObject* pack_ncbr_tiles(PyObject *self, PyObject *args){
 	PyObject* tiles;
 	unsigned int width, height;
-	
+
 	if(!PyArg_ParseTuple(args, "OII", &tiles, &width, &height))
 		return NULL;
 
@@ -132,14 +132,14 @@ static PyObject* pack_ncbr_tiles(PyObject *self, PyObject *args){
 	for(unsigned int i = 0;i<width*height;i++){
 		PyObject* tile = PyList_GetItem(tiles, i);
 		if(!tile) return NULL;
-		
+
 		char* tiledata;
 		Py_ssize_t tilelen;
-		
+
 		ASSERT(PyBytes_Check(tile), "List contained something other than bytes");
 		PyBytes_AsStringAndSize(tile, &tiledata, &tilelen);
-		ASSERT(tilelen == 64, "Tiles should be 64 bytes long");	
-		
+		ASSERT(tilelen == 64, "Tiles should be 64 bytes long");
+
 		plot_tile(output, x, y, tiledata, width*8);
 		x += 8;
 		if(x >= width*8){
@@ -158,7 +158,7 @@ static PyObject* draw_tile_to_buffer(PyObject *self, PyObject *args){
 	char *buffer, *tile;
 	unsigned int width, x, y;
 	Py_ssize_t tile_size;
-	
+
 	if(!PyArg_ParseTuple(args, "Yy#III", &bytearray, &tile, &tile_size, &x, &y, &width))
 		return NULL;
 	ASSERT(tile_size == 64, "Tile is not 64 bytes");
@@ -191,4 +191,3 @@ PyMODINIT_FUNC PyInit_tile(void)
 {
     return PyModule_Create(&tilemodule);
 }
-

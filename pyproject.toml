@@ -4,14 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nitrogfx-py"
-version = "1.0.0"
+version = "1.1.0"
 keywords = ["NDS", "Nintendo DS", "NCGR", "NCLR", "NSCR", "NCER", "NANR"]
 authors = [
   { name="Fexean", email="3699814-Fexean@users.noreply.gitlab.com" },
+  { name="Xzonn", email="Xzonn@outlook.com" },
 ]
 description = "Nintendo DS Graphic format library"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.10"
 license = {file = "LICENSE.txt"}
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -27,5 +28,4 @@ extra = ["orjson"] # for better performance on json conversion functions
 
 
 [project.urls]
-"Homepage" = "https://gitlab.com/Fexean/ntrgfx-py"
-
+"Homepage" = "https://gitlab.com/Xzonn/ntrgfx-py"
