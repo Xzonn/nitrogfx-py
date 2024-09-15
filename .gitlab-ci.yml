@@ -1,5 +1,5 @@
 default:
-    image: python:3.8.17-slim
+    image: python:3.12-slim
 
 stages:
   - test
