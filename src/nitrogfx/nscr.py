@@ -37,12 +37,16 @@ class MapEntry:
 class NSCR:
   "Class for representing an NSCR tilemap file"
 
-  def __init__(self, w: int, h: int, _8bpp: bool = True):
+  def __init__(self, w: int, h: int, color_mode: int = 0):
     # in pixels
     self.width = w
     self.height = h
-    self.is8bpp = _8bpp
+    self.color_mode = color_mode
     self.map: list[MapEntry] = [MapEntry() for i in range(w * h // 64)]
+  
+  @property
+  def is8bpp(self) -> bool:
+    return self.color_mode != 0
 
   def set_entry(self, x: int, y: int, entry: MapEntry):
     """Set tilemap entry at position. Note that x & y are tile coordinates, not pixel coordinates.
@@ -68,7 +72,7 @@ class NSCR:
     size = map_size + 0x14
     header = util.pack_nitro_header("RCSN", size, 1)
     data = "NRCS".encode("ascii") + struct.pack(
-      "<IHHII", size, self.width, self.height, 1 if self.is8bpp else 0, map_size
+      "<IHHII", size, self.width, self.height, self.color_mode, map_size
     )
     for m in self.map:
       data += m.pack()
@@ -79,9 +83,9 @@ class NSCR:
     :param data: bytes
     :return: NSCR object
     """
-    size, w, h, bpp, map_size = struct.unpack("<IHHII", data[0x14:0x24])
+    size, w, h, color_mode, map_size = struct.unpack("<IHHII", data[0x14:0x24])
 
-    nscr = NSCR(w, h, bpp == 1)
+    nscr = NSCR(w, h, color_mode)
     map_ = []
     for i in range(0, map_size, 2):
       raw = data[0x24 + i] | (data[0x25 + i] << 8)
