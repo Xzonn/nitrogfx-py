@@ -43,7 +43,7 @@ class NSCR:
     self.height = h
     self.color_mode = color_mode
     self.map: list[MapEntry] = [MapEntry() for i in range(w * h // 64)]
-  
+
   @property
   def is8bpp(self) -> bool:
     return self.color_mode != 0
@@ -71,9 +71,7 @@ class NSCR:
     map_size = self.width * self.height * 2 // 64
     size = map_size + 0x14
     header = util.pack_nitro_header("RCSN", size, 1)
-    data = "NRCS".encode("ascii") + struct.pack(
-      "<IHHII", size, self.width, self.height, self.color_mode, map_size
-    )
+    data = "NRCS".encode("ascii") + struct.pack("<IHHII", size, self.width, self.height, self.color_mode, map_size)
     for m in self.map:
       data += m.pack()
     return header + data

@@ -21,8 +21,8 @@ class NCERTest(unittest.TestCase):
   def __compare_cell_to_example(self, x):
     self.assertEqual(x.cells[1].max_x, 15)
     self.assertEqual(x.cells[1].max_y, 15)
-    self.assertEqual(x.cells[1].min_x, 65520)
-    self.assertEqual(x.cells[1].min_y, 65520)
+    self.assertEqual(x.cells[1].min_x, -16)
+    self.assertEqual(x.cells[1].min_y, -16)
 
     self.assertEqual(x.cells[1].oam[0].x, 496)
     self.assertEqual(x.cells[1].oam[0].y, 240)

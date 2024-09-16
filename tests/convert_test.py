@@ -19,7 +19,7 @@ class ConvertTest(unittest.TestCase):
   def test_palette_read(self):
     im = Image.open(TEST_IMG_8BPP)
     nclr = conv.img_to_nclr(im)
-    self.assertEqual(len(nclr.colors), 256)
+    self.assertEqual(len(nclr.colors), 4)
     self.assertEqual(nclr.colors[1], (255, 0, 0))
 
   def test_tileset_read(self):

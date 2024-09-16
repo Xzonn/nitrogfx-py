@@ -10,8 +10,8 @@
 			"readOnly": 2054,
 			"maxX": 15,
 			"maxY": 15,
-			"minX": 65520,
-			"minY": 65520,
+			"minX": -16,
+			"minY": -16,
 			"OAM": {
 				"Attr0": {
 					"YCoordinate": 240,
@@ -38,8 +38,8 @@
 			"readOnly": 2054,
 			"maxX": 15,
 			"maxY": 15,
-			"minX": 65520,
-			"minY": 65520,
+			"minX": -16,
+			"minY": -16,
 			"OAM": {
 				"Attr0": {
 					"YCoordinate": 240,
