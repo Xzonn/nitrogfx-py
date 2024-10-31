@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nitrogfx-py"
-version = "1.1.0"
+version = "1.1.0-dev"
 keywords = ["NDS", "Nintendo DS", "NCGR", "NCLR", "NSCR", "NCER", "NANR"]
 authors = [
   { name="Fexean", email="3699814-Fexean@users.noreply.gitlab.com" },

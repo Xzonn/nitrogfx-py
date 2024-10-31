@@ -28,7 +28,8 @@ class NCLR:
       header2 += c
     return header + header2
 
-  def unpack(data: bytes):
+  @staticmethod
+  def unpack(data: bytes) -> "NCLR":
     """Unpack NCLR from bytes.
     :return: NCLR object
     """
@@ -53,7 +54,8 @@ class NCLR:
     with open(filepath, "wb") as f:
       f.write(self.pack())
 
-  def load_from(filename: str):
+  @staticmethod
+  def load_from(filename: str) -> "NCLR":
     """Reads NCLR palette from NCLR file.
     :param filename: Path to NCLR file
     :return: NCLR object
@@ -67,7 +69,8 @@ class NCLR:
   def __repr__(self) -> str:
     return f"<NCLR ({self.ncpr}, {self.is8bpp}) with {len(self.colors)} colors>"
 
-  def get_monochrome_nclr():
+  @staticmethod
+  def get_monochrome_nclr() -> "NCLR":
     """Creates a 256-color monochrome palette which can be used as a placeholder
     when a proper palette is not available.
     :return: NCLR object

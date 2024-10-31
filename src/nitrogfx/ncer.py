@@ -24,7 +24,8 @@ class NCER:
     min_y = min([oam.y for oam in all_oams])
     return (max_x - min_x, max_y - min_y)
 
-  def unpack(data: bytes):
+  @staticmethod
+  def unpack(data: bytes) -> "NCER":
     """Unpack NCER from bytes.
     :param data: bytes
     :return: NCER object
@@ -130,7 +131,8 @@ class NCER:
     with open(filename, "wb") as f:
       f.write(self.pack())
 
-  def load_from(filename: str):
+  @staticmethod
+  def load_from(filename: str) -> "NCER":
     """Load NCER from file.
     :param filename: Path to NCER file.
     :return: NCER object
@@ -180,7 +182,7 @@ class OAM:
     self.y = 0
     self.rot = False
     self.sizeDisable = False
-    self.moce = 0
+    self.mode = 0
     self.mosaic = False
     self.colors = 0
     self.shape = 0
@@ -230,7 +232,8 @@ class OAM:
     attr21 = (self.char >> 8) | (self.prio << 2) | (self.pal << 4)
     return bytes([attr00, attr01, attr10, attr11, attr20, attr21])
 
-  def unpack(data: bytes):
+  @staticmethod
+  def unpack(data: bytes) -> "OAM":
     ":return: OAM object"
     a0, a1, a2 = struct.unpack("<HHH", data)
     self = OAM()

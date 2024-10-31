@@ -10,11 +10,13 @@ class Frame0:
   def __init__(self):
     self.index = 0
     self.padding = 0
+    self.duration = 0
 
   def pack(self):
     return struct.pack("<HH", self.index, self.padding)
 
-  def unpack(data: bytes):
+  @staticmethod
+  def unpack(data: bytes) -> "Frame0":
     frame = Frame0()
     frame.index, frame.padding = struct.unpack("<HH", data[0:4])
     frame.duration = 0  # not included in the same data
@@ -37,12 +39,14 @@ class Frame1:
     self.sy = 0
     self.px = 0
     self.py = 0
+    self.duration = 0
 
   def pack(self):
     f = self
     return struct.pack(">HHIIHH", f.index, f.rotZ, f.sx, f.sy, f.px, f.py)
 
-  def unpack(data: bytes):
+  @staticmethod
+  def unpack(data: bytes) -> "Frame1":
     f = Frame1()
     f.index, f.rotZ, f.sx, f.sy, f.px, f.py = struct.unpack("<HHIIHH", data[0:16])
     f.duration = 0  # not included in the same data
@@ -62,15 +66,17 @@ class Frame2:
     self.index = 0
     self.px = 0
     self.py = 0
+    self.duration = 0
 
   def pack(self):
     return struct.pack("<HHHH", self.index, 0, self.px, self.py)
 
-  def unpack(data: bytes):
+  @staticmethod
+  def unpack(data: bytes) -> "Frame2":
     f = Frame2()
     f.index, unused, f.px, f.py = struct.unpack("<HHHH", data[0:8])
     f.duration = 0  # not included in the same data
-    return frame
+    return f
 
   def __eq__(self, other):
     return vars(self) == vars(other)
@@ -183,7 +189,8 @@ class NANR:
     header2 += struct.pack("II", 0, 0)  # padding
     return header + header2 + knba_sect + lbal + txeu
 
-  def unpack(data: bytes):
+  @staticmethod
+  def unpack(data: bytes) -> "NANR":
     """Unpack NANR from bytes
     :param data: bytes
     :return: NANR object
@@ -215,7 +222,8 @@ class NANR:
     nanr.texu = data[data.find(b"TXEU", lbal_start) + 0x8]
     return nanr
 
-  def load_from(filepath: str):
+  @staticmethod
+  def load_from(filepath: str) -> "NANR":
     """Read data from a NANR file
     :param filename: path to NCGR file
     :return: NANR object

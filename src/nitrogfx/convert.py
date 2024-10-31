@@ -24,6 +24,8 @@ def img_to_nclr(img: Image.Image) -> NCLR:
     return (list[i], list[i + 1], list[i + 2])
 
   pal = img.getpalette()
+  if not pal:
+    raise ValueError("Image is not indexed")
   colors = [readColor(pal, i) for i in range(0, len(pal), 3)]
   nclr = NCLR()
   nclr.colors = colors
@@ -77,7 +79,7 @@ def img_to_nscr(img: Image.Image, bpp: int = 8, use_flipping: bool = True) -> tu
   :return: tuple of (NCGR, NSCR, NCLR)
   """
   nclr = img_to_nclr(img)
-  nclr.bpp = bpp
+  nclr.is8bpp = bpp == 8
 
   tileset = TilesetBuilder()
   tileset.add(Tile([0 for i in range(64)]))

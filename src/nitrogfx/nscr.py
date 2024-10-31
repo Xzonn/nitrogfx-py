@@ -20,10 +20,11 @@ class MapEntry:
     x |= (self.pal & 0xF) << 12
     return struct.pack("<H", x)
 
-  def unpack(data: bytes):
+  @staticmethod
+  def unpack(data: int) -> "MapEntry":
     ":return: MapEntry"
     raw = data
-    return MapEntry(raw & 0x3FF, (raw >> 12) & 0xF, (raw >> 10) & 1, (raw >> 11) & 1)
+    return MapEntry(raw & 0x3FF, (raw >> 12) & 0xF, bool((raw >> 10) & 1),bool((raw >> 11) & 1))
 
   def __eq__(self, other) -> bool:
     if not isinstance(other, MapEntry):
@@ -76,7 +77,8 @@ class NSCR:
       data += m.pack()
     return header + data
 
-  def unpack(data: bytes):
+  @staticmethod
+  def unpack(data: bytes) -> "NSCR":
     """Unpack NSCR from bytes.
     :param data: bytes
     :return: NSCR object
@@ -98,7 +100,8 @@ class NSCR:
     with open(filename, "wb") as f:
       f.write(self.pack())
 
-  def load_from(filename: str):
+  @staticmethod
+  def load_from(filename: str) -> "NSCR":
     """Load NSCR file.
     :param filename: Path to NSCR file
     :return: NSCR object
@@ -106,5 +109,5 @@ class NSCR:
     with open(filename, "rb") as f:
       return NSCR.unpack(f.read())
 
-  def __eq__(self, other) -> str:
+  def __eq__(self, other) -> bool:
     return self.width == other.width and self.height == other.height and self.map == other.map

@@ -19,7 +19,7 @@ try:
   def json_load(path):
     with open(path, "rb") as f:
       return orjson.loads(f.read())
-except:
+except Exception:
   import json
 
   def json_dump(data, path):
@@ -152,7 +152,7 @@ class TilesetBuilder:
   def as_ncgr(self, bpp) -> NCGR:
     """Produces an NCGR out of the added tiles
     :returns: NCGR"""
-    ncgr = nitrogfx.ncgr.NCGR(bpp)
+    ncgr = NCGR(bpp)
     ncgr.tiles = self.__tiles
     ncgr.width = 1
     ncgr.height = len(ncgr.tiles)
@@ -185,6 +185,7 @@ class TileHash:
       return (False, True)
     if pixels == self.__hvflipped:
       return (True, True)
+    raise Exception("TileHash: Tile not found in hash")
 
   def __hash__(self) -> int:
     return self.__hash
@@ -212,6 +213,6 @@ class TileCanvas:
 
   def as_img(self, nclr: NCLR) -> Image.Image:
     img = Image.frombytes("P", (self.w, self.h), bytes(self.data))
-    pal = nitrogfx.convert.nclr_to_imgpal(nclr)
+    pal = nitrogfx.convert.nclr_to_imgpal(nclr) # type: ignore
     img.putpalette(pal)
     return img

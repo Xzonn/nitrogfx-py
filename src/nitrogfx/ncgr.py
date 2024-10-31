@@ -96,7 +96,8 @@ class NCGR:
       return Tile(data[tilenum * 0x40 : tilenum * 0x40 + 0x40])
     return Tile(c_ext._4bpp_to_8bpp(data[tilenum * 0x20 : tilenum * 0x20 + 0x20]))
 
-  def unpack(data):
+  @staticmethod
+  def unpack(data) -> "NCGR":
     """Unpack NCGR from bytes
     :param data: bytes
     :return: NCGR object
@@ -123,7 +124,8 @@ class NCGR:
     with open(filepath, "wb") as f:
       f.write(self.pack())
 
-  def load_from(filename: str):
+  @staticmethod
+  def load_from(filename: str) -> "NCGR":
     """Read NCGR data from a file
     :param filename: path to NCGR file
     :return: NCGR object
