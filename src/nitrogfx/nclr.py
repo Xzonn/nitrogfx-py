@@ -37,9 +37,9 @@ class NCLR:
     if data[0:4] != b"RLCN" and data[0:4] != b"RPCN":
       raise Exception("Data must start with NCLR/RPCN")
 
-    extsz, bpp, x, size = struct.unpack("<IIII", data[0x14 : 0x14 + 16])
-    if size == 0:
-      size = 512
+    extsz, bpp, unk1, unk2, size = struct.unpack("<IHHII", data[0x14 : 0x14 + 16])
+    if size == 0 or size > extsz:
+      size = extsz - 0x18
     nclr.is8bpp = bpp == 4
     nclr.ncpr = data[0:4] == b"RPCN"
     for i in range(size // 2):
