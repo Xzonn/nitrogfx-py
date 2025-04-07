@@ -110,7 +110,7 @@ def nclr_to_imgpal(nclr: NCLR, index: int = 0) -> list[int]:
   :return: RGB array compatible with Image.putpalette
   """
   result = []
-  for color in nclr.colors[:0x100]:
+  for color in nclr.colors[index * 16 : 0x100 + index * 16]:
     result.append(color[0])
     result.append(color[1])
     result.append(color[2])
